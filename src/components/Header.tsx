@@ -5,7 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 export default function Header() {
   return (
-    <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6 border">
+    <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6">
       <Link href="#" className="flex items-center gap-2" prefetch={false}>
         <span className="text-lg font-medium">Logo</span>
       </Link>
