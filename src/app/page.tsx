@@ -2,10 +2,18 @@
 import Tarjeta from "@/components/Tarjeta";
 import { Button } from "@/components/ui/button";
 import { AppContext } from "@/context/AppContext";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 
 export default function Home() {
-  const {globalTimer, globalClicks, globalPoints} = useContext(AppContext)
+  const {globalTimer, globalClicks, globalPoints, setGlobalTimer} = useContext(AppContext)
+
+  const handleTimer = () => {
+    const intervalId = setInterval(() => {
+      setGlobalTimer((s) => s - 1);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  };
 
   return (
     <>
@@ -21,7 +29,7 @@ export default function Home() {
         </div>
         <div>
           <h1 className="text-center text-3xl font-semibold my-3">Juego</h1>
-          <Button>Empezar</Button>
+          <Button onClick={handleTimer}>Empezar</Button>
         </div>
       </div>
 
