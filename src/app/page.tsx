@@ -2,7 +2,7 @@
 import Tarjeta from "@/components/Tarjeta";
 import { Button } from "@/components/ui/button";
 import { AppContext } from "@/context/AppContext";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 
 export default function Home() {
   const {globalTimer, globalClicks, globalPoints, setGlobalTimer} = useContext(AppContext)
