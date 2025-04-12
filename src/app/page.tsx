@@ -5,7 +5,7 @@ import { AppContext } from "@/context/AppContext";
 import { useContext } from "react";
 
 export default function Home() {
-  const {globalTimer, globalClicks, globalPoints, setGlobalTimer} = useContext(AppContext)
+  const {globalTimer, globalClicks, globalPoints, setGlobalTimer} = useContext(AppContext);
 
   const handleTimer = () => {
     const intervalId = setInterval(() => {

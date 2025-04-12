@@ -2,16 +2,25 @@
 import { createContext, Dispatch, ReactNode, SetStateAction, useState } from "react";
 
 type AppContextProps = {
-    globalTimer: number,
-    setGlobalTimer: Dispatch<SetStateAction<number>>;
-    globalClicks: number,
-    setGlobalClicks: Dispatch<SetStateAction<number>>;
-    globalPoints: number,
-    setGlobalPoints: Dispatch<SetStateAction<number>>;
+  globalTimer: number,
+  setGlobalTimer: Dispatch<SetStateAction<number>>;
+  globalClicks: number,
+  setGlobalClicks: Dispatch<SetStateAction<number>>;
+  globalPoints: number,
+  setGlobalPoints: Dispatch<SetStateAction<number>>;
 
 }
+const defaultValues: AppContextProps = {
+  globalTimer: 0,
+  setGlobalTimer: () => {},
+  globalClicks: 0,
+  setGlobalClicks: () => {},
+  globalPoints: 0,
+  setGlobalPoints: () => {}
+};
+
   
-const AppContext = createContext<AppContextProps | undefined>(undefined);
+const AppContext = createContext<AppContextProps>(defaultValues);
 
 export const AppProvider = ({ children }: { children: ReactNode}) => {
   const [globalTimer, setGlobalTimer] = useState(20);
