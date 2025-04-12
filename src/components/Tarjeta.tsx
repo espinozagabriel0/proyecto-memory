@@ -1,13 +1,7 @@
 "use client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 type CardProps = {
@@ -16,10 +10,13 @@ type CardProps = {
 };
 export default function Tarjeta({ nom, imatge }: CardProps) {
   const [timer, setTimer] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(true)
+
 
   const handleSelectCard = () => {
     console.log("Has clickado la carta: ", nom);
 
+    setIsFlipped(false)
     const intervalId = setInterval(() => {
       setTimer((s) => s + 1);
     }, 1000);
@@ -33,30 +30,29 @@ export default function Tarjeta({ nom, imatge }: CardProps) {
     }
   }, [timer]);
 
-    {/* Història 5: Comptadors reactius
-        Comptador individual per targeta amb useState. -->al clickar tarjeta, darle la vuelta durante un segundo. si el usuario gira dos targetas iguales, se quedan visibles.
-        Comptador global amb createContext i useContext.
-     */}
-
-
+ 
   return (
     <Card
       className={cn(
-        "text-center cursor-pointer hover:shadow-md transition-shadow animate",
-        timer == 0 ? "bg-red-500" : "bg-green-600"
+        "cursor-pointer hover:shadow-md transition-shadow min-w-[13rem] w-full max-w-xs flex flex-col items-center justify-center mx-auto my-4" 
       )}
       onClick={handleSelectCard}
     >
-      <CardHeader>
-        <CardTitle>Card Title</CardTitle>
-        <CardDescription>Card Description</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p>{nom}</p>
+      <CardContent className="w-full flex justify-center p-4">
+        {isFlipped ? (
+          <div className="relative aspect-square w-24">
+            <Image
+              src="/assets/images/pokeball.png"
+              alt="Pokeball"
+              fill
+              className="object-contain"
+            />
+          </div>
+
+        ): (
+          <p>{imatge}</p>
+        )}
       </CardContent>
-      <CardFooter>
-        <p className="w-full">{imatge}</p>
-      </CardFooter>
     </Card>
   );
 }
