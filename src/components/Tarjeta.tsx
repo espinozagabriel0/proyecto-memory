@@ -10,13 +10,19 @@ type CardProps = {
 };
 export default function Tarjeta({ nom, imatge }: CardProps) {
   const [timer, setTimer] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(true)
-
+  const [isFlipped, setIsFlipped] = useState(true);
 
   const handleSelectCard = () => {
     console.log("Has clickado la carta: ", nom);
 
-    setIsFlipped(false)
+    // prueba solo para girar carta y volver a girar 
+    if (true) {
+      setIsFlipped(false);
+      setTimeout(() => {
+        setIsFlipped(true)
+      }, 1000);
+    }
+
     const intervalId = setInterval(() => {
       setTimer((s) => s + 1);
     }, 1000);
@@ -30,11 +36,11 @@ export default function Tarjeta({ nom, imatge }: CardProps) {
     }
   }, [timer]);
 
- 
   return (
     <Card
       className={cn(
-        "cursor-pointer hover:shadow-md transition-shadow min-w-[13rem] w-full max-w-xs flex flex-col items-center justify-center mx-auto my-4" 
+        "cursor-pointer hover:shadow-md transition min-w-[13rem] w-full max-w-xs flex flex-col items-center justify-center mx-auto my-4 duration-500",
+        !isFlipped && "rotate-y-180" 
       )}
       onClick={handleSelectCard}
     >
@@ -48,9 +54,8 @@ export default function Tarjeta({ nom, imatge }: CardProps) {
               className="object-contain"
             />
           </div>
-
-        ): (
-          <p>{imatge}</p>
+        ) : (
+          <p className="rotate-y-180">{imatge}</p>
         )}
       </CardContent>
     </Card>
