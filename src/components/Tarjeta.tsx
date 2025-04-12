@@ -33,6 +33,12 @@ export default function Tarjeta({ nom, imatge }: CardProps) {
     }
   }, [timer]);
 
+    {/* Història 5: Comptadors reactius
+        Comptador individual per targeta amb useState. -->al clickar tarjeta, darle la vuelta durante un segundo. si el usuario gira dos targetas iguales, se quedan visibles.
+        Comptador global amb createContext i useContext.
+     */}
+
+
   return (
     <Card
       className={cn(

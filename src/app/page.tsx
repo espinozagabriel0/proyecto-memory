@@ -33,11 +33,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Història 5: Comptadors reactius
-        Comptador individual per targeta amb useState. -->al clickar tarjeta, darle la vuelta durante un segundo. si el usuario gira dos targetas iguales, se quedan visibles.
-        Comptador global amb createContext i useContext.
-     */}
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-10">
         {[1, 2, 3, 4].map((element) => (
           <Tarjeta
