@@ -8,6 +8,8 @@ type AppContextProps = {
   setGlobalClicks: Dispatch<SetStateAction<number>>;
   globalPoints: number,
   setGlobalPoints: Dispatch<SetStateAction<number>>;
+  flippedCards: number[],
+  setFlippedCards: Dispatch<SetStateAction<number[]>>
 
 }
 const defaultValues: AppContextProps = {
@@ -16,16 +18,20 @@ const defaultValues: AppContextProps = {
   globalClicks: 0,
   setGlobalClicks: () => {},
   globalPoints: 0,
-  setGlobalPoints: () => {}
+  setGlobalPoints: () => {},
+  flippedCards: [],
+  setFlippedCards: () => {}
 };
 
-  
+
 const AppContext = createContext<AppContextProps>(defaultValues);
 
 export const AppProvider = ({ children }: { children: ReactNode}) => {
   const [globalTimer, setGlobalTimer] = useState(20);
   const [globalClicks, setGlobalClicks] = useState(0);
   const [globalPoints, setGlobalPoints] = useState(0);
+
+  const [flippedCards, setFlippedCards] = useState<number[]>([]);
 
   return (
     <AppContext.Provider
@@ -35,7 +41,9 @@ export const AppProvider = ({ children }: { children: ReactNode}) => {
         globalClicks,
         setGlobalClicks,
         globalPoints, 
-        setGlobalPoints
+        setGlobalPoints,
+        flippedCards, //controla las cartas giradas
+        setFlippedCards
       }}
     >
       {children}

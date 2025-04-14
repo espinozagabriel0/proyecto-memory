@@ -5,19 +5,20 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 type CardProps = {
-  nom: string;
-  imatge: string;
+  card: {
+    id: number,
+    nom: string,
+    imatge: string
+  }
 };
-export default function Tarjeta({ nom, imatge }: CardProps) {
+export default function Tarjeta({ card }: CardProps) {
   const [timer, setTimer] = useState(0);
   const [isFlipped, setIsFlipped] = useState(true);
 
   const handleSelectCard = () => {
-    console.log("Has clickado la carta: ", nom);
-
     // prueba solo para girar carta y volver a girar 
+    setIsFlipped(false);
     if (true) {
-      setIsFlipped(false);
       setTimeout(() => {
         setIsFlipped(true)
       }, 1000);
@@ -30,11 +31,11 @@ export default function Tarjeta({ nom, imatge }: CardProps) {
     return () => clearInterval(intervalId);
   };
 
-  useEffect(() => {
-    if (timer != 0) {
-      console.log("tiempo : ", timer, nom);
-    }
-  }, [timer]);
+  // useEffect(() => {
+  //   if (timer != 0) {
+  //     console.log("tiempo : ", timer, nom);
+  //   }
+  // }, [timer]);
 
   return (
     <Card
@@ -55,7 +56,7 @@ export default function Tarjeta({ nom, imatge }: CardProps) {
             />
           </div>
         ) : (
-          <p className="rotate-y-180">{imatge}</p>
+          <p className="rotate-y-180">{card.imatge}</p>
         )}
       </CardContent>
     </Card>
