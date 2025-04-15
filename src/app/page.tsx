@@ -2,14 +2,12 @@
 import Tarjeta from "@/components/Tarjeta";
 import { Button } from "@/components/ui/button";
 import { AppContext } from "@/context/AppContext";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 
 export default function Home() {
   const { globalTimer, globalClicks, globalPoints, setGlobalTimer} = useContext(AppContext);
-  
-
-  let cards = [
+  const [cards, setCards] = useState([
     {
       id: 1,
       nom: "Pikachu",
@@ -40,11 +38,18 @@ export default function Home() {
       nom: "Dragonite",
       imatge: "Icono Dragonite",
     },
-  ];
+  ]);
 
+  //se duplican las cartas para que hayan pares, y se añade un id unico para evitar usar el mismo id de la carta y causar problemas
+  useEffect(() => {
+    const duplicated = [...cards, ...cards]
+      .map((card, index) => ({
+        ...card,
+        uniqueId: `${card.id}-${index}` // "1-0", "1-1", "2-2"...
+      }))
 
-  // obtener aleatoriamente 6 cartas, y duplicarlas, para que haya par para cada carta. teniendo asi, 12 cartas.
-  cards = cards.concat([...cards]);
+    setCards(duplicated);
+  }, []);
 
   const handleTimer = () => {
     const intervalId = setInterval(() => {

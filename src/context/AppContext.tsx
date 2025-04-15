@@ -2,16 +2,20 @@
 import { createContext, Dispatch, ReactNode, SetStateAction, useState } from "react";
 
 type AppContextProps = {
-  globalTimer: number,
+  globalTimer: number;
   setGlobalTimer: Dispatch<SetStateAction<number>>;
-  globalClicks: number,
+  globalClicks: number;
   setGlobalClicks: Dispatch<SetStateAction<number>>;
-  globalPoints: number,
+  globalPoints: number;
   setGlobalPoints: Dispatch<SetStateAction<number>>;
-  flippedCards: number[],
-  setFlippedCards: Dispatch<SetStateAction<number[]>>
+  flippedCards: Card[];
+  setFlippedCards: Dispatch<SetStateAction<Card[]>>;
+  flippedIds: string[]; 
+  setFlippedIds: Dispatch<SetStateAction<string[]>>;
+  matchedCards: number[]; 
+  setMatchedCards: Dispatch<SetStateAction<number[]>>;
+};
 
-}
 const defaultValues: AppContextProps = {
   globalTimer: 0,
   setGlobalTimer: () => {},
@@ -20,30 +24,46 @@ const defaultValues: AppContextProps = {
   globalPoints: 0,
   setGlobalPoints: () => {},
   flippedCards: [],
-  setFlippedCards: () => {}
+  setFlippedCards: () => {},
+  flippedIds: [],
+  setFlippedIds: () => {},
+  matchedCards: [],
+  setMatchedCards: () => {},
 };
 
+type Card = {
+  id: number;
+  uniqueId: string;
+  nom: string;
+  imatge: string;
+};
 
 const AppContext = createContext<AppContextProps>(defaultValues);
 
-export const AppProvider = ({ children }: { children: ReactNode}) => {
+export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [globalTimer, setGlobalTimer] = useState(20);
   const [globalClicks, setGlobalClicks] = useState(0);
   const [globalPoints, setGlobalPoints] = useState(0);
 
-  const [flippedCards, setFlippedCards] = useState<number[]>([]);
+  const [flippedCards, setFlippedCards] = useState<Card[]>([]);
+  const [flippedIds, setFlippedIds] = useState<string[]>([]);
+  const [matchedCards, setMatchedCards] = useState<number[]>([]);
 
   return (
     <AppContext.Provider
       value={{
-        globalTimer, 
+        globalTimer,
         setGlobalTimer,
         globalClicks,
         setGlobalClicks,
-        globalPoints, 
+        globalPoints,
         setGlobalPoints,
-        flippedCards, //controla las cartas giradas
-        setFlippedCards
+        flippedCards,
+        setFlippedCards,
+        flippedIds,
+        setFlippedIds,
+        matchedCards,
+        setMatchedCards,
       }}
     >
       {children}
