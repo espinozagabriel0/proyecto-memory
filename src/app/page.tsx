@@ -59,7 +59,6 @@ export default function Home() {
     return () => clearInterval(intervalId);
   };
   
-
   return (
     <>
       <div className="text-center my-4 grid grid-cols-1 lg:grid-cols-4 items-center">
