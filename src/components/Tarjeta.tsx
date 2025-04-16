@@ -14,7 +14,7 @@ import { useContext, useEffect, useState } from "react";
 //   };
 // };
 
-export default function Tarjeta({ card }) {
+export default function Tarjeta({ card, started}) {
   const {
     flippedCards,
     setFlippedCards,
@@ -22,6 +22,7 @@ export default function Tarjeta({ card }) {
     setFlippedIds,
     matchedCards,
     setMatchedCards,
+    setGlobalPoints
   } = useContext(AppContext);
 
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null); 
@@ -67,7 +68,7 @@ export default function Tarjeta({ card }) {
   }, [flippedCards]);
 
   const handleSelectCard = () => {
-    if (flippedCards.length >= 2 || isFlipped || isMatched) return;
+    if (flippedCards.length >= 2 || isFlipped || isMatched || !started) return;
 
     setFlippedIds(prev => [...prev, card.uniqueId]);
     setFlippedCards(prev => [...prev, card]);

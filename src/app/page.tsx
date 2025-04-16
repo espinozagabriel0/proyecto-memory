@@ -39,6 +39,8 @@ export default function Home() {
       imatge: "Icono Dragonite",
     },
   ]);
+  const [started, setStarted] = useState(false)
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   //se duplican las cartas para que hayan pares, y se añade un id unico para evitar usar el mismo id de la carta y causar problemas
   useEffect(() => {
@@ -51,17 +53,31 @@ export default function Home() {
     setCards(duplicated);
   }, []);
 
+
   const handleTimer = () => {
-    const intervalId = setInterval(() => {
+    setStarted(true)
+
+    if (intervalId) return;
+
+    const id = setInterval(() => {
       setGlobalTimer((s) => s - 1);
     }, 1000);
 
-    return () => clearInterval(intervalId);
+    setIntervalId(id)
   };
+
+
+  useEffect(() => {
+    if (globalTimer == 0 && intervalId) {
+      clearInterval(intervalId)
+      setIntervalId(null);
+      setStarted(false)
+    }
+  }, [globalTimer, intervalId])
   
   return (
     <>
-      <div className="text-center my-4 grid grid-cols-1 lg:grid-cols-4 items-center">
+      <div className="text-center my-4 grid grid-cols-1 lg:grid-cols-4 items-center mt-10">
         <div className="">
           <h3 className="text-2xl">
             Tiempo: <span className="font-semibold">{globalTimer}</span>
@@ -79,13 +95,17 @@ export default function Home() {
         </div>
         <div>
           <h1 className="text-center text-3xl font-semibold my-3">Juego</h1>
-          <Button onClick={handleTimer}>Empezar</Button>
+          {!started && (
+            <Button onClick={handleTimer} className={"bg-green-600"}>
+            Jugar
+            </Button>
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-10">
         {cards.map((card, index) => (
-          <Tarjeta key={index} card={card} />
+          <Tarjeta key={index} card={card} started={started}/>
         ))}
       </div>
     </>
