@@ -14,7 +14,7 @@ import { useContext, useEffect, useState } from "react";
 //   };
 // };
 
-export default function Tarjeta({ card, started}) {
+export default function Tarjeta({ card, started }) {
   const {
     flippedCards,
     setFlippedCards,
@@ -22,23 +22,26 @@ export default function Tarjeta({ card, started}) {
     setFlippedIds,
     matchedCards,
     setMatchedCards,
-    setGlobalPoints
+    setGlobalPoints,
+    setGlobalClicks
   } = useContext(AppContext);
 
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null); 
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   const isFlipped = flippedIds.includes(card.uniqueId);
   const isMatched = matchedCards.includes(card.id);
 
   // cada vez que se gira una carta se ejecuta este bloque
   useEffect(() => {
-    // si solo hay una carta, usa un timeout para volver a girarla 
+    // si solo hay una carta, usa un timeout para volver a girarla
     if (flippedCards.length === 1) {
       const [firstCard] = flippedCards;
 
       if (firstCard.uniqueId === card.uniqueId) {
         const id = setTimeout(() => {
-          setFlippedIds(prev => prev.filter(id => id !== firstCard.uniqueId));
+          setFlippedIds((prev) =>
+            prev.filter((id) => id !== firstCard.uniqueId)
+          );
           setFlippedCards([]);
         }, 1000);
         setTimeoutId(id); // Guardar el timeout en el estado
@@ -51,27 +54,34 @@ export default function Tarjeta({ card, started}) {
 
       if (timeoutId) {
         clearTimeout(timeoutId);
-        setTimeoutId(null); 
+        setTimeoutId(null);
       }
 
-      setTimeout(() => {
-        if (firstCard.id === secondCard.id) {
-          setMatchedCards(prev => [...prev, firstCard.id]);
-        } else {
-          setFlippedIds(prev =>
-            prev.filter(id => id !== firstCard.uniqueId && id !== secondCard.uniqueId)
-          );
-        }
-        setFlippedCards([]);
-      }, 1000);
+      // condicion para que el bloque se ejecute una vez al girar la carta (sino se ejecutaria tantas veces como cartas haya) 
+      if (card.uniqueId === firstCard.uniqueId) {
+        setTimeout(() => {
+          if (firstCard.id === secondCard.id) {
+            setMatchedCards((prev) => [...prev, firstCard.id]);
+            setGlobalPoints((prevPts) => prevPts + 1);
+          } else {
+            setFlippedIds((prev) =>
+              prev.filter(
+                (id) => id !== firstCard.uniqueId && id !== secondCard.uniqueId
+              )
+            );
+          }
+          setFlippedCards([]);
+        }, 1000);
+      }
     }
   }, [flippedCards]);
 
   const handleSelectCard = () => {
     if (flippedCards.length >= 2 || isFlipped || isMatched || !started) return;
 
-    setFlippedIds(prev => [...prev, card.uniqueId]);
-    setFlippedCards(prev => [...prev, card]);
+    setFlippedIds((prev) => [...prev, card.uniqueId]);
+    setFlippedCards((prev) => [...prev, card]);
+    setGlobalClicks((prevClick) => prevClick + 1)
   };
 
   return (

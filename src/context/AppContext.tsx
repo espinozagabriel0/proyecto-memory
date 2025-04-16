@@ -1,5 +1,5 @@
 "use client";
-import { createContext, Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
 
 type AppContextProps = {
   globalTimer: number;
@@ -49,6 +49,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [flippedIds, setFlippedIds] = useState<string[]>([]);
   const [matchedCards, setMatchedCards] = useState<number[]>([]);
 
+  useEffect(() => {
+    console.log("Global Points:", globalPoints);
+  }, [globalPoints]);
+  
   return (
     <AppContext.Provider
       value={{
