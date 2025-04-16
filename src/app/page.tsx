@@ -2,6 +2,7 @@
 import Tarjeta from "@/components/Tarjeta";
 import { Button } from "@/components/ui/button";
 import { AppContext } from "@/context/AppContext";
+import { Clock, MousePointerClick, Star } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 
 type Card = {
@@ -10,7 +11,6 @@ type Card = {
   nom: string;
   imatge: string;
 };
-
 
 export default function Home() {
   const {
@@ -29,40 +29,44 @@ export default function Home() {
 
   //se duplican las cartas para que hayan pares, y se añade un id unico para evitar usar el mismo id de la carta y causar problemas
   useEffect(() => {
-    const defaultCards = [ {
-      id: 1,
-      nom: "Pikachu",
-      imatge: "Icono Pikachu",
-    },
-    {
-      id: 2,
-      nom: "Charizard",
-      imatge: "Icono Charizard",
-    },
-    {
-      id: 3,
-      nom: "Bulbasaur",
-      imatge: "Icono Bulbasaur",
-    },
-    {
-      id: 4,
-      nom: "Squirtle",
-      imatge: "Icono Squirtle",
-    },
-    {
-      id: 5,
-      nom: "Eevee",
-      imatge: "Icono Eevee",
-    },
-    {
-      id: 6,
-      nom: "Dragonite",
-      imatge: "Icono Dragonite",
-    }]
-    const duplicated = [...defaultCards, ...defaultCards].map((card, index) => ({
-      ...card,
-      uniqueId: `${card.id}-${index}`, // "1-0", "1-1", "2-2"...
-    }));
+    const defaultCards = [
+      {
+        id: 1,
+        nom: "Pikachu",
+        imatge: "Icono Pikachu",
+      },
+      {
+        id: 2,
+        nom: "Charizard",
+        imatge: "Icono Charizard",
+      },
+      {
+        id: 3,
+        nom: "Bulbasaur",
+        imatge: "Icono Bulbasaur",
+      },
+      {
+        id: 4,
+        nom: "Squirtle",
+        imatge: "Icono Squirtle",
+      },
+      {
+        id: 5,
+        nom: "Eevee",
+        imatge: "Icono Eevee",
+      },
+      {
+        id: 6,
+        nom: "Dragonite",
+        imatge: "Icono Dragonite",
+      },
+    ];
+    const duplicated = [...defaultCards, ...defaultCards].map(
+      (card, index) => ({
+        ...card,
+        uniqueId: `${card.id}-${index}`, // "1-0", "1-1", "2-2"...
+      })
+    );
 
     setCards(duplicated);
   }, []);
@@ -94,26 +98,32 @@ export default function Home() {
 
   return (
     <>
-      <div className="text-center my-4 grid grid-cols-1 lg:grid-cols-4 items-center mt-10">
-        <div className="">
-          <h3 className="text-2xl">
-            Tiempo: <span className="font-semibold">{globalTimer}</span>
+      <div className="text-center my-7 grid grid-cols-1 lg:grid-cols-4 items-center shadow-md border rounded-md p-4 bg-white">
+        <div>
+          <h3 className="text-2xl flex items-center justify-center gap-2">
+            <Clock className="w-6 h-6 text-blue-500" />
+            Tiempo: <span className="font-semibold">{globalTimer}s</span>
           </h3>
         </div>
-        <div className="">
-          <h3 className="text-2xl">
+        <div>
+          <h3 className="text-2xl flex items-center justify-center gap-2">
+            <MousePointerClick className="w-6 h-6 text-green-500" />
             Clicks: <span className="font-semibold">{globalClicks}</span>
           </h3>
         </div>
-        <div className="">
-          <h3 className="text-2xl">
+        <div>
+          <h3 className="text-2xl flex items-center justify-center gap-2">
+            <Star className="w-6 h-6 text-yellow-500" />
             Puntos: <span className="font-semibold">{globalPoints}</span>
           </h3>
         </div>
         <div>
           <h1 className="text-center text-3xl font-semibold my-3">Memory</h1>
           {!started && (
-            <Button onClick={handleTimer} className={"bg-green-600"}>
+            <Button
+              onClick={handleTimer}
+              className="bg-green-600 hover:bg-green-700"
+            >
               Jugar
             </Button>
           )}
@@ -122,8 +132,13 @@ export default function Home() {
 
       {!started && globalTimer == 0 && (
         <div className="text-center">
-          <h2 className="text-4xl text-red-700 font-semibold">Fin de la partida! </h2>
-          <p>pulsa <span className="text-green-700 font-semibold">jugar</span> para comenzar de nuevo.</p>
+          <h2 className="text-4xl text-red-700 font-semibold">
+            Fin de la partida!{" "}
+          </h2>
+          <p>
+            pulsa <span className="text-green-700 font-semibold">jugar</span>{" "}
+            para comenzar de nuevo.
+          </p>
         </div>
       )}
 
