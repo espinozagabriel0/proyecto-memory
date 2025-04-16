@@ -4,11 +4,32 @@ import { Button } from "@/components/ui/button";
 import { AppContext } from "@/context/AppContext";
 import { useContext, useEffect, useState } from "react";
 
+type Card = {
+  id: number;
+  uniqueId: string;
+  nom: string;
+  imatge: string;
+};
+
 
 export default function Home() {
-  const { globalTimer, globalClicks, globalPoints, setGlobalTimer} = useContext(AppContext);
-  const [cards, setCards] = useState([
-    {
+  const {
+    globalTimer,
+    globalClicks,
+    globalPoints,
+    setGlobalTimer,
+    setFlippedIds,
+    setMatchedCards,
+    setGlobalClicks,
+    setGlobalPoints,
+  } = useContext(AppContext);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [started, setStarted] = useState(false);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+
+  //se duplican las cartas para que hayan pares, y se añade un id unico para evitar usar el mismo id de la carta y causar problemas
+  useEffect(() => {
+    const defaultCards = [ {
       id: 1,
       nom: "Pikachu",
       imatge: "Icono Pikachu",
@@ -37,25 +58,22 @@ export default function Home() {
       id: 6,
       nom: "Dragonite",
       imatge: "Icono Dragonite",
-    },
-  ]);
-  const [started, setStarted] = useState(false)
-  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
-
-  //se duplican las cartas para que hayan pares, y se añade un id unico para evitar usar el mismo id de la carta y causar problemas
-  useEffect(() => {
-    const duplicated = [...cards, ...cards]
-      .map((card, index) => ({
-        ...card,
-        uniqueId: `${card.id}-${index}` // "1-0", "1-1", "2-2"...
-      }))
+    }]
+    const duplicated = [...defaultCards, ...defaultCards].map((card, index) => ({
+      ...card,
+      uniqueId: `${card.id}-${index}`, // "1-0", "1-1", "2-2"...
+    }));
 
     setCards(duplicated);
   }, []);
 
-
   const handleTimer = () => {
-    setStarted(true)
+    setGlobalTimer(20);
+    setStarted(true);
+    setGlobalClicks(0);
+    setGlobalPoints(0);
+    setFlippedIds([]);
+    setMatchedCards([]);
 
     if (intervalId) return;
 
@@ -63,18 +81,17 @@ export default function Home() {
       setGlobalTimer((s) => s - 1);
     }, 1000);
 
-    setIntervalId(id)
+    setIntervalId(id);
   };
-
 
   useEffect(() => {
     if (globalTimer == 0 && intervalId) {
-      clearInterval(intervalId)
+      clearInterval(intervalId);
       setIntervalId(null);
-      setStarted(false)
+      setStarted(false);
     }
-  }, [globalTimer, intervalId])
-  
+  }, [globalTimer, intervalId]);
+
   return (
     <>
       <div className="text-center my-4 grid grid-cols-1 lg:grid-cols-4 items-center mt-10">
@@ -94,18 +111,25 @@ export default function Home() {
           </h3>
         </div>
         <div>
-          <h1 className="text-center text-3xl font-semibold my-3">Juego</h1>
+          <h1 className="text-center text-3xl font-semibold my-3">Memory</h1>
           {!started && (
             <Button onClick={handleTimer} className={"bg-green-600"}>
-            Jugar
+              Jugar
             </Button>
           )}
         </div>
       </div>
 
+      {!started && globalTimer == 0 && (
+        <div className="text-center">
+          <h2 className="text-4xl text-red-700 font-semibold">Fin de la partida! </h2>
+          <p>pulsa <span className="text-green-700 font-semibold">jugar</span> para comenzar de nuevo.</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-10">
         {cards.map((card, index) => (
-          <Tarjeta key={index} card={card} started={started}/>
+          <Tarjeta key={index} card={card} started={started} />
         ))}
       </div>
     </>

@@ -5,16 +5,17 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 
-// type CardProps = {
-//   card: {
-//     id: number;
-//     uniqueId: string;
-//     nom: string;
-//     imatge: string;
-//   };
-// };
+type CardProps = {
+  card: {
+    id: number;
+    uniqueId: string;
+    nom: string;
+    imatge: string;
+  };
+  started: boolean
+};
 
-export default function Tarjeta({ card, started }) {
+export default function Tarjeta({ card, started } : CardProps) {
   const {
     flippedCards,
     setFlippedCards,
