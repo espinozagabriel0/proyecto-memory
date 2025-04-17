@@ -33,32 +33,32 @@ export default function Home() {
       {
         id: 1,
         nom: "Pikachu",
-        imatge: "Icono Pikachu",
+        imatge: "Pikachu",
       },
       {
         id: 2,
         nom: "Charizard",
-        imatge: "Icono Charizard",
+        imatge: "Charizard",
       },
       {
         id: 3,
         nom: "Bulbasaur",
-        imatge: "Icono Bulbasaur",
+        imatge: "Bulbasaur",
       },
       {
         id: 4,
         nom: "Squirtle",
-        imatge: "Icono Squirtle",
+        imatge: "Squirtle",
       },
       {
         id: 5,
         nom: "Eevee",
-        imatge: "Icono Eevee",
+        imatge: "Eevee",
       },
       {
         id: 6,
         nom: "Dragonite",
-        imatge: "Icono Dragonite",
+        imatge: "Dragonite",
       },
     ];
     const duplicated = [...defaultCards, ...defaultCards].map(
@@ -98,7 +98,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="text-center my-7 grid grid-cols-1 lg:grid-cols-4 items-center shadow-md border rounded-md p-4 bg-white">
+      <div className="dark:bg-gray-900 text-center my-7 grid grid-cols-1 lg:grid-cols-4 items-center shadow-md border rounded-md p-4 bg-white">
         <div>
           <h3 className="text-2xl flex items-center justify-center gap-2">
             <Clock className="w-6 h-6 text-blue-500" />
