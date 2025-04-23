@@ -2,6 +2,7 @@ import Link from "next/link"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import ThemeToggle from "@/theme/theme-toggle";
 
 export default function Header() {
   return (
@@ -91,6 +92,7 @@ export default function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
         <Button variant="outline">Login</Button>
+        <ThemeToggle/>
       </div>
     </header>
   );

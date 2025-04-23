@@ -1,45 +1,150 @@
-"use client"
+"use client";
 import Tarjeta from "@/components/Tarjeta";
 import { Button } from "@/components/ui/button";
 import { AppContext } from "@/context/AppContext";
-import { useContext } from "react";
+import { Clock, MousePointerClick, Star } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+
+type Card = {
+  id: number;
+  uniqueId: string;
+  nom: string;
+  imatge: string;
+};
 
 export default function Home() {
-  const {globalTimer, globalClicks, globalPoints, setGlobalTimer} = useContext(AppContext);
+  const {
+    globalTimer,
+    globalClicks,
+    globalPoints,
+    setGlobalTimer,
+    setFlippedIds,
+    setMatchedCards,
+    setGlobalClicks,
+    setGlobalPoints,
+  } = useContext(AppContext);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [started, setStarted] = useState(false);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+
+  //se duplican las cartas para que hayan pares, y se añade un id unico para evitar usar el mismo id de la carta y causar problemas
+  useEffect(() => {
+    const defaultCards = [
+      {
+        id: 1,
+        nom: "Pikachu",
+        imatge: "Pikachu",
+      },
+      {
+        id: 2,
+        nom: "Charizard",
+        imatge: "Charizard",
+      },
+      {
+        id: 3,
+        nom: "Bulbasaur",
+        imatge: "Bulbasaur",
+      },
+      {
+        id: 4,
+        nom: "Squirtle",
+        imatge: "Squirtle",
+      },
+      {
+        id: 5,
+        nom: "Eevee",
+        imatge: "Eevee",
+      },
+      {
+        id: 6,
+        nom: "Dragonite",
+        imatge: "Dragonite",
+      },
+    ];
+    const duplicated = [...defaultCards, ...defaultCards].map(
+      (card, index) => ({
+        ...card,
+        uniqueId: `${card.id}-${index}`, // "1-0", "1-1", "2-2"...
+      })
+    );
+
+    setCards(duplicated);
+  }, []);
 
   const handleTimer = () => {
-    const intervalId = setInterval(() => {
+    setGlobalTimer(20);
+    setStarted(true);
+    setGlobalClicks(0);
+    setGlobalPoints(0);
+    setFlippedIds([]);
+    setMatchedCards([]);
+
+    if (intervalId) return;
+
+    const id = setInterval(() => {
       setGlobalTimer((s) => s - 1);
     }, 1000);
 
-    return () => clearInterval(intervalId);
+    setIntervalId(id);
   };
+
+  useEffect(() => {
+    if (globalTimer == 0 && intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+      setStarted(false);
+    }
+  }, [globalTimer, intervalId]);
 
   return (
     <>
-      <div className="text-center my-4 grid grid-cols-1 lg:grid-cols-4 items-center">
-        <div className="">
-          <h3 className="text-2xl">Tiempo: <span className="font-semibold">{globalTimer}</span></h3>
-        </div>
-        <div className="">
-          <h3 className="text-2xl">Clicks: <span className="font-semibold">{globalClicks}</span></h3>
-        </div>
-        <div className="">
-          <h3 className="text-2xl">Puntos: <span className="font-semibold">{globalPoints}</span></h3>
+      <div className="dark:bg-gray-900 text-center my-7 grid grid-cols-1 lg:grid-cols-4 items-center shadow-md border rounded-md p-4 bg-white">
+        <div>
+          <h3 className="text-2xl flex items-center justify-center gap-2">
+            <Clock className="w-6 h-6 text-blue-500" />
+            Tiempo: <span className="font-semibold">{globalTimer}s</span>
+          </h3>
         </div>
         <div>
-          <h1 className="text-center text-3xl font-semibold my-3">Juego</h1>
-          <Button onClick={handleTimer}>Empezar</Button>
+          <h3 className="text-2xl flex items-center justify-center gap-2">
+            <MousePointerClick className="w-6 h-6 text-green-500" />
+            Clicks: <span className="font-semibold">{globalClicks}</span>
+          </h3>
+        </div>
+        <div>
+          <h3 className="text-2xl flex items-center justify-center gap-2">
+            <Star className="w-6 h-6 text-yellow-500" />
+            Puntos: <span className="font-semibold">{globalPoints}</span>
+          </h3>
+        </div>
+        <div>
+          <h1 className="text-center text-3xl font-semibold my-3">Memory</h1>
+          {!started && (
+            <Button
+              onClick={handleTimer}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Jugar
+            </Button>
+          )}
         </div>
       </div>
 
+      {!started && globalTimer == 0 && (
+        <div className="text-center">
+          <h2 className="text-4xl text-red-700 font-semibold">
+            Fin de la partida!{" "}
+          </h2>
+          <p>
+            pulsa <span className="text-green-700 font-semibold">jugar</span>{" "}
+            para comenzar de nuevo.
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-10">
-        {[1, 2, 3, 4].map((element) => (
-          <Tarjeta
-            key={element}
-            nom={element.toString()}
-            imatge={"Targeta " + element.toString()}
-          />
+        {cards.map((card, index) => (
+          <Tarjeta key={index} card={card} started={started} />
         ))}
       </div>
     </>

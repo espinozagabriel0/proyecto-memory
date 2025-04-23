@@ -1,62 +1,113 @@
 "use client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AppContext } from "@/context/AppContext";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
 
 type CardProps = {
-  nom: string;
-  imatge: string;
+  card: {
+    id: number;
+    uniqueId: string;
+    nom: string;
+    imatge: string;
+  };
+  started: boolean
 };
-export default function Tarjeta({ nom, imatge }: CardProps) {
-  const [timer, setTimer] = useState(0);
+
+export default function Tarjeta({ card, started } : CardProps) {
+  const {
+    flippedCards,
+    setFlippedCards,
+    flippedIds,
+    setFlippedIds,
+    matchedCards,
+    setMatchedCards,
+    setGlobalPoints,
+    setGlobalClicks
+  } = useContext(AppContext);
+
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+
+  const isFlipped = flippedIds.includes(card.uniqueId);
+  const isMatched = matchedCards.includes(card.id);
+
+  // cada vez que se gira una carta se ejecuta este bloque
+  useEffect(() => {
+    // si solo hay una carta, usa un timeout para volver a girarla
+    if (flippedCards.length === 1) {
+      const [firstCard] = flippedCards;
+
+      if (firstCard.uniqueId === card.uniqueId) {
+        const id = setTimeout(() => {
+          setFlippedIds((prev) =>
+            prev.filter((id) => id !== firstCard.uniqueId)
+          );
+          setFlippedCards([]);
+        }, 1000);
+        setTimeoutId(id); // Guardar el timeout en el estado
+      }
+    }
+
+    // si hay dos cartas giradas, cancelar el timeout de la primera carta y compararlas
+    if (flippedCards.length === 2) {
+      const [firstCard, secondCard] = flippedCards;
+
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        setTimeoutId(null);
+      }
+
+      // condicion para que el bloque se ejecute una vez al girar la carta (sino se ejecutaria tantas veces como cartas haya) 
+      if (card.uniqueId === firstCard.uniqueId) {
+        setTimeout(() => {
+          if (firstCard.id === secondCard.id) {
+            setMatchedCards((prev) => [...prev, firstCard.id]);
+            setGlobalPoints((prevPts) => prevPts + 1);
+          } else {
+            setFlippedIds((prev) =>
+              prev.filter(
+                (id) => id !== firstCard.uniqueId && id !== secondCard.uniqueId
+              )
+            );
+          }
+          setFlippedCards([]);
+        }, 1000);
+      }
+    }
+  }, [flippedCards]);
 
   const handleSelectCard = () => {
-    console.log("Has clickado la carta: ", nom);
+    if (flippedCards.length >= 2 || isFlipped || isMatched || !started) return;
 
-    const intervalId = setInterval(() => {
-      setTimer((s) => s + 1);
-    }, 1000);
-
-    return () => clearInterval(intervalId);
+    setFlippedIds((prev) => [...prev, card.uniqueId]);
+    setFlippedCards((prev) => [...prev, card]);
+    setGlobalClicks((prevClick) => prevClick + 1)
   };
-
-  useEffect(() => {
-    if (timer != 0) {
-      console.log("tiempo : ", timer, nom);
-    }
-  }, [timer]);
-
-    {/* Història 5: Comptadors reactius
-        Comptador individual per targeta amb useState. -->al clickar tarjeta, darle la vuelta durante un segundo. si el usuario gira dos targetas iguales, se quedan visibles.
-        Comptador global amb createContext i useContext.
-     */}
-
 
   return (
     <Card
       className={cn(
-        "text-center cursor-pointer hover:shadow-md transition-shadow animate",
-        timer == 0 ? "bg-red-500" : "bg-green-600"
+        "cursor-pointer hover:shadow-md transition min-w-[13rem] w-full max-w-xs flex flex-col items-center justify-center mx-auto my-4 duration-500",
+        isFlipped && "rotate-y-180",
+        isMatched && "opacity-50 pointer-events-none"
       )}
       onClick={handleSelectCard}
     >
-      <CardHeader>
-        <CardTitle>Card Title</CardTitle>
-        <CardDescription>Card Description</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p>{nom}</p>
+      <CardContent className="w-full flex justify-center p-4">
+        {!isFlipped ? (
+          <div className="relative aspect-square w-24">
+            <Image
+              src="/assets/images/pokeball.png"
+              alt="Pokeball"
+              fill
+              className="object-contain"
+            />
+          </div>
+        ) : (
+          <p className="rotate-y-180">{card.imatge}</p>
+        )}
       </CardContent>
-      <CardFooter>
-        <p className="w-full">{imatge}</p>
-      </CardFooter>
     </Card>
   );
 }
