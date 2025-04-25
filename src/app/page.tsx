@@ -22,6 +22,7 @@ export default function Home() {
     setMatchedCards,
     setGlobalClicks,
     setGlobalPoints,
+    matchedCards,
   } = useContext(AppContext);
   const [cards, setCards] = useState<Card[]>([]);
   const [started, setStarted] = useState(false);
@@ -33,34 +34,36 @@ export default function Home() {
       {
         id: 1,
         nom: "Pikachu",
-        imatge: "Pikachu",
+        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/25.svg",
       },
       {
         id: 2,
         nom: "Charizard",
-        imatge: "Charizard",
+        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/6.svg",
       },
       {
         id: 3,
         nom: "Bulbasaur",
-        imatge: "Bulbasaur",
+        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/1.svg",
       },
       {
         id: 4,
         nom: "Squirtle",
-        imatge: "Squirtle",
+        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/7.svg",
       },
       {
         id: 5,
         nom: "Eevee",
-        imatge: "Eevee",
+        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/133.svg",
       },
       {
         id: 6,
         nom: "Dragonite",
-        imatge: "Dragonite",
+        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/149.svg",
       },
     ];
+    
+
     const duplicated = [...defaultCards, ...defaultCards].map(
       (card, index) => ({
         ...card,
@@ -89,7 +92,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (globalTimer == 0 && intervalId) {
+    if ((globalTimer == 0 && intervalId) || (matchedCards.length * 2 == cards.length && intervalId)) {
       clearInterval(intervalId);
       setIntervalId(null);
       setStarted(false);
@@ -129,6 +132,14 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {!started && matchedCards.length * 2 == cards.length && (
+        <div className="text-center">
+          <h2 className="text-4xl text-green-700 font-semibold">
+            Has ganado!{" "}
+          </h2>
+        </div>
+      )}
 
       {!started && globalTimer == 0 && (
         <div className="text-center">

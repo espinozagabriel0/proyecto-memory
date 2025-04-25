@@ -12,10 +12,10 @@ type CardProps = {
     nom: string;
     imatge: string;
   };
-  started: boolean
+  started: boolean;
 };
 
-export default function Tarjeta({ card, started } : CardProps) {
+export default function Tarjeta({ card, started }: CardProps) {
   const {
     flippedCards,
     setFlippedCards,
@@ -24,10 +24,11 @@ export default function Tarjeta({ card, started } : CardProps) {
     matchedCards,
     setMatchedCards,
     setGlobalPoints,
-    setGlobalClicks
+    setGlobalClicks,
   } = useContext(AppContext);
 
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [cardClick, setCardClick] = useState(0);
 
   const isFlipped = flippedIds.includes(card.uniqueId);
   const isMatched = matchedCards.includes(card.id);
@@ -58,21 +59,22 @@ export default function Tarjeta({ card, started } : CardProps) {
         setTimeoutId(null);
       }
 
-      // condicion para que el bloque se ejecute una vez al girar la carta (sino se ejecutaria tantas veces como cartas haya) 
+      // condicion para que el bloque se ejecute una vez al girar la carta (sino se ejecutaria tantas veces como cartas haya)
       if (card.uniqueId === firstCard.uniqueId) {
-        setTimeout(() => {
-          if (firstCard.id === secondCard.id) {
-            setMatchedCards((prev) => [...prev, firstCard.id]);
-            setGlobalPoints((prevPts) => prevPts + 1);
-          } else {
+        if (firstCard.id === secondCard.id) {
+          setMatchedCards((prev) => [...prev, firstCard.id]);
+          setGlobalPoints((prevPts) => prevPts + 1);
+          setFlippedCards([]);
+        } else {
+          setTimeout(() => {
             setFlippedIds((prev) =>
               prev.filter(
                 (id) => id !== firstCard.uniqueId && id !== secondCard.uniqueId
               )
             );
-          }
-          setFlippedCards([]);
-        }, 1000);
+            setFlippedCards([]);
+          }, 1000);
+        }
       }
     }
   }, [flippedCards]);
@@ -82,15 +84,16 @@ export default function Tarjeta({ card, started } : CardProps) {
 
     setFlippedIds((prev) => [...prev, card.uniqueId]);
     setFlippedCards((prev) => [...prev, card]);
-    setGlobalClicks((prevClick) => prevClick + 1)
+    setGlobalClicks((prevClick) => prevClick + 1);
+    setCardClick((prev) => prev + 1);
   };
 
   return (
     <Card
       className={cn(
-        "cursor-pointer hover:shadow-md transition min-w-[13rem] w-full max-w-xs flex flex-col items-center justify-center mx-auto my-4 duration-500",
+        "cursor-pointer hover:shadow-md transition min-w-[13rem] min-h-[13rem] w-full max-w-xs flex flex-col items-center justify-center mx-auto my-4 duration-500",
         isFlipped && "rotate-y-180",
-        isMatched && "opacity-50 pointer-events-none"
+        isMatched && "opacity-50 pointer-events-none scale-95"
       )}
       onClick={handleSelectCard}
     >
@@ -105,7 +108,17 @@ export default function Tarjeta({ card, started } : CardProps) {
             />
           </div>
         ) : (
-          <p className="rotate-y-180">{card.imatge}</p>
+          <>
+            <Image
+              src={card.imatge}
+              alt="Pokeball"
+              fill
+              className="object-contain p-8"
+            />
+            <span className="absolute top-2 right-3 border rounded-full size-6 shadow-md flex items-center justify-center bg-white rotate-y-180">
+              {cardClick}
+            </span>
+          </>
         )}
       </CardContent>
     </Card>
