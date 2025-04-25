@@ -82,8 +82,8 @@ export default function Tarjeta({ card, started }: CardProps) {
   const handleSelectCard = () => {
     if (flippedCards.length >= 2 || isFlipped || isMatched || !started) return;
 
-    setFlippedIds((prev) => [...prev, card.uniqueId]);
-    setFlippedCards((prev) => [...prev, card]);
+    setFlippedIds((prev) => [...prev, card.uniqueId]); //  se usa este estado para que se haga la animacion de girar la carta, con el unique id, para no girar la otra carta pareja
+    setFlippedCards((prev) => [...prev, card]); // estado temporal que guarda las cartas giradas, para compararlas
     setGlobalClicks((prevClick) => prevClick + 1);
     setCardClick((prev) => prev + 1);
   };
@@ -115,7 +115,7 @@ export default function Tarjeta({ card, started }: CardProps) {
               fill
               className="object-contain p-8"
             />
-            <span className="absolute top-2 right-3 border rounded-full size-6 shadow-md flex items-center justify-center bg-white rotate-y-180">
+            <span className="absolute top-2 bg-transparent right-3 border rounded-full size-6 shadow-md flex items-center justify-center rotate-y-180">
               {cardClick}
             </span>
           </>

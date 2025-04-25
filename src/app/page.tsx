@@ -154,8 +154,8 @@ export default function Home() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-10">
-        {cards.map((card, index) => (
-          <Tarjeta key={index} card={card} started={started} />
+        {cards.map((card) => (
+          <Tarjeta key={card.uniqueId} card={card} started={started} />
         ))}
       </div>
     </>
