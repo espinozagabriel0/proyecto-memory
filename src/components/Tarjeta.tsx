@@ -12,11 +12,11 @@ type CardProps = {
     name: string;
     url: string;
   };
-  started: boolean;
 };
 
-export default function Tarjeta({ card, started }: CardProps) {
+export default function Tarjeta({ card }: CardProps) {
   const {
+    started,
     flippedCards,
     setFlippedCards,
     flippedIds,

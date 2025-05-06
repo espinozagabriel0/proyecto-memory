@@ -15,6 +15,8 @@ type Card = {
 
 export default function Home() {
   const {
+    started,
+    setStarted,
     globalTimer,
     globalClicks,
     globalPoints,
@@ -26,83 +28,56 @@ export default function Home() {
     matchedCards,
   } = useContext(AppContext);
   const [cards, setCards] = useState<Card[]>([]);
-  const [started, setStarted] = useState(false);
   // estado para controlar el loading del fetch
   const [loading, setLoading] = useState(false);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+  const [firstGame, setFirstGame] = useState(true);
 
   //se duplican las cartas para que hayan pares, y se añade un id unico para evitar usar el mismo id de la carta y causar problemas
-  useEffect(() => {
-    // sustituir por fetch
-    // const defaultCards = [
-    //   {
-    //     id: 1,
-    //     nom: "Pikachu",
-    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/25.svg",
-    //   },
-    //   {
-    //     id: 2,
-    //     nom: "Charizard",
-    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/6.svg",
-    //   },
-    //   {
-    //     id: 3,
-    //     nom: "Bulbasaur",
-    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/1.svg",
-    //   },
-    //   {
-    //     id: 4,
-    //     nom: "Squirtle",
-    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/7.svg",
-    //   },
-    //   {
-    //     id: 5,
-    //     nom: "Eevee",
-    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/133.svg",
-    //   },
-    //   {
-    //     id: 6,
-    //     nom: "Dragonite",
-    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/149.svg",
-    //   },
-    // ];
-
-    const fetchCards = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          "https://m7-uf4-laravel-production.up.railway.app/api/cards?limit=6"
-        );
-        if (!response.ok) {
-          throw new Error("Error fetching cards");
-        }
-
-        const data = await response.json();
-        console.log(data);
-        const duplicated = [...data.cards, ...data.cards].map(
-          (card, index) => ({
-            ...card,
-            uniqueId: `${card.id}-${index}`, // "1-0", "1-1", "2-2"...
-          })
-        );
-        setCards(duplicated);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+  const fetchCards = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/cards?limit=6"
+      );
+      if (!response.ok) {
+        throw new Error("Error fetching cards");
       }
-    };
 
+      const data = await response.json();
+      const duplicated = [...data.cards, ...data.cards].map((card, index) => ({
+        ...card,
+        uniqueId: `${card.id}-${index}`, // "1-0", "1-1", "2-2"...
+      }));
+
+      // mezclar cartas
+      const shuffledCards = duplicated.sort(() => Math.random() - 0.5);
+      setCards(shuffledCards);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchCards();
   }, []);
 
-  const handleTimer = () => {
-    setGlobalTimer(20);
-    setStarted(true);
+  const handleTimer = async () => {
     setGlobalClicks(0);
     setGlobalPoints(0);
     setFlippedIds([]);
     setMatchedCards([]);
+
+    // si es la primera vez que se juega, no se hace el fetch de las cartas (ya se han cargado)
+    if (!firstGame) {
+      await fetchCards(); // espera a que se carguen las cartas antes de empezar el juego
+    } else {
+      setFirstGame(false);
+    }
+
+    setGlobalTimer(20);
+    setStarted(true);
 
     if (intervalId) return;
 
@@ -126,7 +101,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="dark:bg-gray-900 text-center my-7 grid grid-cols-1 lg:grid-cols-4 items-center shadow-md border rounded-md p-4 bg-white">
+      <div className="dark:bg-gray-900 text-center mt-3 mb-7 grid grid-cols-1 lg:grid-cols-4 items-center shadow-md border rounded-md p-4 bg-white">
         <div>
           <h3 className="text-2xl flex items-center justify-center gap-2">
             <Clock className="w-6 h-6 text-blue-500" />
@@ -189,9 +164,7 @@ export default function Home() {
                 className="min-w-[12rem] min-h-[12rem] w-full"
               />
             ))
-          : cards.map((card) => (
-              <Tarjeta key={card.uniqueId} card={card} started={started} />
-            ))}
+          : cards.map((card) => <Tarjeta key={card.uniqueId} card={card} />)}
       </div>
     </>
   );

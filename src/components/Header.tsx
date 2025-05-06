@@ -1,10 +1,21 @@
-import Link from "next/link"
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+"use client";
+import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggle from "@/theme/theme-toggle";
+import { cn } from "@/lib/utils";
+import { useContext } from "react";
+import { AppContext } from "@/context/AppContext";
 
 export default function Header() {
+  const { started } = useContext(AppContext);
   return (
     <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6">
       <Link href="#" className="flex items-center gap-2" prefetch={false}>
@@ -20,14 +31,24 @@ export default function Header() {
         </Link>
         <Link
           href="/about"
-          className="text-sm font-medium transition-colors hover:text-primary"
+          className={cn(
+            "text-sm font-medium transition-colors hover:text-primary",
+            started && "pointer-events-none opacity-50"
+          )}
+          aria-disabled={started}
+          tabIndex={started ? -1 : 0}
           prefetch={false}
         >
           Acerca de
         </Link>
         <Link
           href="/partidas"
-          className="text-sm font-medium transition-colors hover:text-primary"
+          className={cn(
+            "text-sm font-medium transition-colors hover:text-primary",
+            started && "pointer-events-none opacity-50"
+          )}
+          aria-disabled={started}
+          tabIndex={started ? -1 : 0}
           prefetch={false}
         >
           Partidas
@@ -92,7 +113,7 @@ export default function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
         <Button variant="outline">Login</Button>
-        <ThemeToggle/>
+        <ThemeToggle />
       </div>
     </header>
   );
