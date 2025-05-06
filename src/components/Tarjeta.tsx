@@ -9,14 +9,14 @@ type CardProps = {
   card: {
     id: number;
     uniqueId: string;
-    nom: string;
-    imatge: string;
+    name: string;
+    url: string;
   };
-  started: boolean;
 };
 
-export default function Tarjeta({ card, started }: CardProps) {
+export default function Tarjeta({ card }: CardProps) {
   const {
+    started,
     flippedCards,
     setFlippedCards,
     flippedIds,
@@ -91,7 +91,7 @@ export default function Tarjeta({ card, started }: CardProps) {
   return (
     <Card
       className={cn(
-        "cursor-pointer hover:shadow-md transition min-w-[13rem] min-h-[13rem] w-full max-w-xs flex flex-col items-center justify-center mx-auto my-4 duration-500",
+        "cursor-pointer hover:shadow-md transition min-w-[12rem] min-h-[12rem] w-full max-w-xs flex flex-col items-center justify-center mx-auto my-4 duration-500",
         isFlipped && "rotate-y-180",
         isMatched && "opacity-50 pointer-events-none scale-95"
       )}
@@ -110,7 +110,7 @@ export default function Tarjeta({ card, started }: CardProps) {
         ) : (
           <>
             <Image
-              src={card.imatge}
+              src={card?.url}
               alt="Pokeball"
               fill
               className="object-contain p-8"

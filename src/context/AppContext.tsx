@@ -1,7 +1,16 @@
 "use client";
-import { createContext, Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 type AppContextProps = {
+  started: boolean;
+  setStarted: Dispatch<SetStateAction<boolean>>;
   globalTimer: number;
   setGlobalTimer: Dispatch<SetStateAction<number>>;
   globalClicks: number;
@@ -10,13 +19,15 @@ type AppContextProps = {
   setGlobalPoints: Dispatch<SetStateAction<number>>;
   flippedCards: Card[];
   setFlippedCards: Dispatch<SetStateAction<Card[]>>;
-  flippedIds: string[]; 
+  flippedIds: string[];
   setFlippedIds: Dispatch<SetStateAction<string[]>>;
-  matchedCards: number[]; 
+  matchedCards: number[];
   setMatchedCards: Dispatch<SetStateAction<number[]>>;
 };
 
 const defaultValues: AppContextProps = {
+  started: false,
+  setStarted: () => {},
   globalTimer: 0,
   setGlobalTimer: () => {},
   globalClicks: 0,
@@ -34,13 +45,14 @@ const defaultValues: AppContextProps = {
 type Card = {
   id: number;
   uniqueId: string;
-  nom: string;
-  imatge: string;
+  name: string;
+  url: string;
 };
 
 const AppContext = createContext<AppContextProps>(defaultValues);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const [started, setStarted] = useState(false);
   const [globalTimer, setGlobalTimer] = useState(20);
   const [globalClicks, setGlobalClicks] = useState(0);
   const [globalPoints, setGlobalPoints] = useState(0);
@@ -52,10 +64,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     console.log("Global Points:", globalPoints);
   }, [globalPoints]);
-  
+
   return (
     <AppContext.Provider
       value={{
+        started,
+        setStarted,
         globalTimer,
         setGlobalTimer,
         globalClicks,
