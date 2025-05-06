@@ -34,8 +34,8 @@ const defaultValues: AppContextProps = {
 type Card = {
   id: number;
   uniqueId: string;
-  nom: string;
-  imatge: string;
+  name: string;
+  url: string;
 };
 
 const AppContext = createContext<AppContextProps>(defaultValues);

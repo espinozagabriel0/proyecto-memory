@@ -1,6 +1,7 @@
 "use client";
 import Tarjeta from "@/components/Tarjeta";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AppContext } from "@/context/AppContext";
 import { Clock, MousePointerClick, Star } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
@@ -8,8 +9,8 @@ import { useContext, useEffect, useState } from "react";
 type Card = {
   id: number;
   uniqueId: string;
-  nom: string;
-  imatge: string;
+  name: string;
+  url: string;
 };
 
 export default function Home() {
@@ -26,52 +27,73 @@ export default function Home() {
   } = useContext(AppContext);
   const [cards, setCards] = useState<Card[]>([]);
   const [started, setStarted] = useState(false);
+  // estado para controlar el loading del fetch
+  const [loading, setLoading] = useState(false);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   //se duplican las cartas para que hayan pares, y se añade un id unico para evitar usar el mismo id de la carta y causar problemas
   useEffect(() => {
-    const defaultCards = [
-      {
-        id: 1,
-        nom: "Pikachu",
-        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/25.svg",
-      },
-      {
-        id: 2,
-        nom: "Charizard",
-        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/6.svg",
-      },
-      {
-        id: 3,
-        nom: "Bulbasaur",
-        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/1.svg",
-      },
-      {
-        id: 4,
-        nom: "Squirtle",
-        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/7.svg",
-      },
-      {
-        id: 5,
-        nom: "Eevee",
-        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/133.svg",
-      },
-      {
-        id: 6,
-        nom: "Dragonite",
-        imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/149.svg",
-      },
-    ];
-    
+    // sustituir por fetch
+    // const defaultCards = [
+    //   {
+    //     id: 1,
+    //     nom: "Pikachu",
+    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/25.svg",
+    //   },
+    //   {
+    //     id: 2,
+    //     nom: "Charizard",
+    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/6.svg",
+    //   },
+    //   {
+    //     id: 3,
+    //     nom: "Bulbasaur",
+    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/1.svg",
+    //   },
+    //   {
+    //     id: 4,
+    //     nom: "Squirtle",
+    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/7.svg",
+    //   },
+    //   {
+    //     id: 5,
+    //     nom: "Eevee",
+    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/133.svg",
+    //   },
+    //   {
+    //     id: 6,
+    //     nom: "Dragonite",
+    //     imatge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/149.svg",
+    //   },
+    // ];
 
-    const duplicated = [...defaultCards, ...defaultCards].map(
-      (card, index) => ({
-        ...card,
-        uniqueId: `${card.id}-${index}`, // "1-0", "1-1", "2-2"...
-      })
-    );
+    const fetchCards = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          "https://m7-uf4-laravel-production.up.railway.app/api/cards?limit=6"
+        );
+        if (!response.ok) {
+          throw new Error("Error fetching cards");
+        }
 
-    setCards(duplicated);
+        const data = await response.json();
+        console.log(data);
+        const duplicated = [...data.cards, ...data.cards].map(
+          (card, index) => ({
+            ...card,
+            uniqueId: `${card.id}-${index}`, // "1-0", "1-1", "2-2"...
+          })
+        );
+        setCards(duplicated);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCards();
   }, []);
 
   const handleTimer = () => {
@@ -92,7 +114,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if ((globalTimer == 0 && intervalId) || (matchedCards.length * 2 == cards.length && intervalId)) {
+    if (
+      (globalTimer == 0 && intervalId) ||
+      (matchedCards.length * 2 == cards.length && intervalId)
+    ) {
       clearInterval(intervalId);
       setIntervalId(null);
       setStarted(false);
@@ -133,13 +158,16 @@ export default function Home() {
         </div>
       </div>
 
-      {!started && matchedCards.length * 2 == cards.length && (
-        <div className="text-center">
-          <h2 className="text-4xl text-green-700 font-semibold">
-            Has ganado!{" "}
-          </h2>
-        </div>
-      )}
+      {!loading &&
+        !started &&
+        cards.length > 0 &&
+        matchedCards.length * 2 == cards.length && (
+          <div className="text-center">
+            <h2 className="text-4xl text-green-700 font-semibold">
+              Has ganado!{" "}
+            </h2>
+          </div>
+        )}
 
       {!started && globalTimer == 0 && (
         <div className="text-center">
@@ -153,10 +181,17 @@ export default function Home() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-10">
-        {cards.map((card) => (
-          <Tarjeta key={card.uniqueId} card={card} started={started} />
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+        {loading
+          ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((item, index) => (
+              <Skeleton
+                key={index}
+                className="min-w-[12rem] min-h-[12rem] w-full"
+              />
+            ))
+          : cards.map((card) => (
+              <Tarjeta key={card.uniqueId} card={card} started={started} />
+            ))}
       </div>
     </>
   );

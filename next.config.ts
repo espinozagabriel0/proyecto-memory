@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['img.pokemondb.net'],
+    domains: ["assets.pokemon.com", "otro-dominio.com"],
   },
 };
 
