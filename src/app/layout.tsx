@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
 import { AppProvider } from "@/context/AppContext";
 import ThemeProvider from "@/theme/theme-provider";
 
@@ -38,9 +37,6 @@ export default function RootLayout({
         >
           <AppProvider>
             <div className="container mx-auto">
-              <header>
-                <Header />
-              </header>
               <main className="p-3">
                 <div className="max-w-[80rem] mx-auto">{children}</div>
               </main>

@@ -112,7 +112,9 @@ export default function Header() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button variant="outline">Login</Button>
+        <Link href="/login" className="" prefetch={false}>
+          <Button variant="outline">Login</Button>
+        </Link>
         <ThemeToggle />
       </div>
     </header>

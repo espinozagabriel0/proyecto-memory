@@ -1,4 +1,5 @@
 "use client";
+import Header from "@/components/Header";
 import Tarjeta from "@/components/Tarjeta";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -101,6 +102,7 @@ export default function Home() {
 
   return (
     <>
+      <Header />
       <div className="dark:bg-gray-900 text-center mt-3 mb-7 grid grid-cols-1 lg:grid-cols-4 items-center shadow-md border rounded-md p-4 bg-white">
         <div>
           <h3 className="text-2xl flex items-center justify-center gap-2">
