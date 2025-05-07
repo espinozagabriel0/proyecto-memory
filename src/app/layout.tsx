@@ -37,7 +37,7 @@ export default function RootLayout({
         >
           <AppProvider>
             <div className="container mx-auto">
-              <main className="p-3">
+              <main className="px-3"> 
                 <div className="max-w-[80rem] mx-auto">{children}</div>
               </main>
               <footer></footer>
