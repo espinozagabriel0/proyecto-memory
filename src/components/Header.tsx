@@ -13,9 +13,16 @@ import ThemeToggle from "@/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 import { useContext } from "react";
 import { AppContext } from "@/context/AppContext";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const { started } = useContext(AppContext);
+  const router = useRouter();
+  const { started, currentUser, setCurrentUser } = useContext(AppContext);
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    router.push("/login");
+  };
   return (
     <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6">
       <Link href="#" className="flex items-center gap-2" prefetch={false}>
@@ -72,9 +79,11 @@ export default function Header() {
                 <AvatarFallback>GB</AvatarFallback>
               </Avatar>
               <div className="grid gap-0.5 leading-none">
-                <div className="font-semibold">Gabriel Bascope</div>
+                <div className="font-semibold">
+                  {currentUser ? currentUser.name : "Sin Nombre"}
+                </div>
                 <div className="text-sm text-muted-foreground">
-                  gabriel@example.com
+                  {currentUser ? currentUser.email : "ejemplo@email.com"}
                 </div>
               </div>
             </div>
@@ -100,19 +109,25 @@ export default function Header() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link
-                href="#"
-                className="flex items-center gap-2"
-                prefetch={false}
+            <DropdownMenuItem asChild>
+              <button
+                type="button"
+                className="flex w-full items-center gap-2"
+                onClick={handleLogout}
               >
                 <div className="h-4 w-4" />
                 <span>Cerrar sesión</span>
-              </Link>
+              </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button variant="outline">Login</Button>
+        <Button
+          variant="outline"
+          onClick={() => router.push("/login")}
+          disabled={started}
+        >
+          Login
+        </Button>
         <ThemeToggle />
       </div>
     </header>
