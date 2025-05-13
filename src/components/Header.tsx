@@ -11,17 +11,56 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggle from "@/theme/theme-toggle";
 import { cn } from "@/lib/utils";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/context/AppContext";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
   const router = useRouter();
-  const { started, currentUser, setCurrentUser } = useContext(AppContext);
+  const { started } = useContext(AppContext);
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    role: "",
+  });
+
+  useEffect(() => {
+    const getProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          "https://m7-uf4-laravel-production.up.railway.app/api/me",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Error fetching profile");
+        }
+
+        const data = await response.json();
+        setUserData({
+          name: data?.data.name,
+          email: data?.data.email,
+          role: data?.data.role,
+        });
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    getProfile();
+  }, []);
 
   const handleLogout = () => {
-    setCurrentUser(null);
-    router.push("/login");
+    // setCurrentUser(null);
+    // router.push("/login");
+    // llamar al endpoint logout
   };
   return (
     <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6">
@@ -80,10 +119,10 @@ export default function Header() {
               </Avatar>
               <div className="grid gap-0.5 leading-none">
                 <div className="font-semibold">
-                  {currentUser ? currentUser.name : "Sin Nombre"}
+                  {userData ? userData?.name : "Sin Nombre"}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {currentUser ? currentUser.email : "ejemplo@email.com"}
+                  {userData ? userData.email : "ejemplo@email.com"}
                 </div>
               </div>
             </div>

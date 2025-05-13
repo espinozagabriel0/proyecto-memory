@@ -22,10 +22,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useContext, useState } from "react";
-import { AppContext } from "@/context/AppContext";
+// import { useContext, useState } from "react";
+// import { AppContext } from "@/context/AppContext";
 import { Eye, EyeOff, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // Define schema
 const formSchema = z.object({
@@ -34,7 +35,7 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
-  const { users, setCurrentUser } = useContext(AppContext);
+  // const { users, setCurrentUser } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
@@ -46,18 +47,31 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { email, password } = values;
 
-    const userExists = users.find(
-      (user) => user.email === email && user.password === password
-    );
+    try {
+      const response = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+      const data = await response.json();
 
-    if (userExists) {
-      setCurrentUser(userExists);
+      if (!response.ok) {
+        throw new Error(data.message || "Error al iniciar sesión");
+      }
+
+      console.log(data);
+      localStorage.setItem("token", data.token);
       router.push("/");
-    } else {
-      console.log("no existe");
+    } catch (error) {
+      console.error(error);
     }
   };
 

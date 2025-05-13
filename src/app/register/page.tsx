@@ -22,10 +22,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useContext, useState } from "react";
-import { AppContext } from "@/context/AppContext";
+// import { useContext, useState } from "react";
+// import { AppContext } from "@/context/AppContext";
 import { Eye, EyeOff, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // validación
 const formSchema = z
@@ -43,7 +44,7 @@ const formSchema = z
   });
 
 export default function RegisterPage() {
-  const { setUsers } = useContext(AppContext);
+  // const { setUsers } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
@@ -58,9 +59,29 @@ export default function RegisterPage() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    setUsers((prevUsers) => [...prevUsers, values]);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // console.log(values);
+
+    try {
+      const response = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Error al registrarse.");
+      }
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
