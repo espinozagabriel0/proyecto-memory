@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useContext, useState } from "react";
 import { AppContext } from "@/context/AppContext";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // Define schema
@@ -64,13 +64,21 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Iniciar Sesión
-          </CardTitle>
-          <CardDescription className="text-center">
-            Ingresa tus credenciales para acceder a tu cuenta
-          </CardDescription>
+        <CardHeader className="space-y-1 flex items-center justify-center">
+          <Button
+            className="rounded-full size-10 p-5"
+            onClick={() => router.push("/")}
+          >
+            <Home />
+          </Button>
+          <div className="p-2">
+            <CardTitle className="text-2xl font-bold text-center">
+              Iniciar Sesión
+            </CardTitle>
+            <CardDescription className="text-center">
+              Ingresa tus credenciales para acceder a tu cuenta
+            </CardDescription>
+          </div>
         </CardHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
