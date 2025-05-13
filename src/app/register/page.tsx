@@ -22,11 +22,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-// import { useContext, useState } from "react";
-// import { AppContext } from "@/context/AppContext";
+import { useContext, useState } from "react";
+import { AppContext } from "@/context/AppContext";
 import { Eye, EyeOff, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 // validación
 const formSchema = z
@@ -34,15 +33,17 @@ const formSchema = z
     name: z.string().min(2, { message: "El nombre es requerido" }),
     email: z.string().email({ message: "Correo inválido" }),
     password: z.string().min(6, { message: "Mínimo 6 caracteres" }),
-    confirmPassword: z.string().min(6, { message: "Confirma tu contraseña" }),
+    password_confirmation: z
+      .string()
+      .min(6, { message: "Confirma tu contraseña" }),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.password === data.password_confirmation, {
     message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
+    path: ["password_confirmation"],
   });
 
 export default function RegisterPage() {
-  // const { setUsers } = useContext(AppContext);
+  const { setUsers } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
@@ -53,13 +54,13 @@ export default function RegisterPage() {
       name: "",
       email: "",
       password: "",
-      confirmPassword: "",
+      password_confirmation: "",
     },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log(values);
-    // setUsers((prevUsers) => [...prevUsers, values]);
+    setUsers((prevUsers) => [...prevUsers, values]);
   };
 
   return (
@@ -143,7 +144,7 @@ export default function RegisterPage() {
               />
               <FormField
                 control={form.control}
-                name="confirmPassword"
+                name="password_confirmation"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Confirmar contraseña</FormLabel>

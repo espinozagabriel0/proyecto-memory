@@ -58,10 +58,11 @@ type Card = {
 };
 
 type User = {
-  id: number;
+  id?: number;
   name: string;
-  mail: string;
+  email: string;
   password: string;
+  password_confirmation?: string;
 };
 
 const AppContext = createContext<AppContextProps>(defaultValues);
@@ -85,19 +86,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     {
       id: 1,
       name: "Juan Pérez",
-      mail: "juan.perez@email.com",
+      email: "juan.perez@email.com",
       password: "juan1234",
     },
     {
       id: 2,
       name: "María García",
-      mail: "maria.garcia@email.com",
+      email: "maria.garcia@email.com",
       password: "maria5678",
     },
     {
       id: 3,
       name: "Carlos López",
-      mail: "carlos.lopez@email.com",
+      email: "carlos.lopez@email.com",
       password: "carlos91011",
     },
   ];

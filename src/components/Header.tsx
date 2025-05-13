@@ -83,7 +83,7 @@ export default function Header() {
                   {currentUser ? currentUser.name : "Sin Nombre"}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {currentUser ? currentUser.mail : "ejemplo@email.com"}
+                  {currentUser ? currentUser.email : "ejemplo@email.com"}
                 </div>
               </div>
             </div>

@@ -50,7 +50,7 @@ export default function LoginPage() {
     const { email, password } = values;
 
     const userExists = users.find(
-      (user) => user.mail === email && user.password === password
+      (user) => user.email === email && user.password === password
     );
 
     if (userExists) {
