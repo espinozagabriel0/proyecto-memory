@@ -25,9 +25,9 @@ export default function Header() {
   });
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const getProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
         const response = await fetch(
           "https://m7-uf4-laravel-production.up.railway.app/api/me",
           {
@@ -54,13 +54,35 @@ export default function Header() {
       }
     };
 
-    getProfile();
+    // si hay un usuario logueado, obtener su perfil (NO hace falta estar autenticado para jugar el juego)
+    if (token) getProfile();
   }, []);
 
-  const handleLogout = () => {
-    // setCurrentUser(null);
-    // router.push("/login");
-    // llamar al endpoint logout
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/logout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error logging out.");
+      }
+      const data = await response.json();
+      console.log(data);
+
+      localStorage.removeItem("token");
+      router.push("/login");
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6">
@@ -119,10 +141,10 @@ export default function Header() {
               </Avatar>
               <div className="grid gap-0.5 leading-none">
                 <div className="font-semibold">
-                  {userData ? userData?.name : "Sin Nombre"}
+                  {userData?.name || "Sin Nombre"}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {userData ? userData.email : "ejemplo@email.com"}
+                  {userData?.email || "ejemplo@email.com"}
                 </div>
               </div>
             </div>
