@@ -27,11 +27,12 @@ import Link from "next/link";
 import { Eye, EyeOff, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 // Define schema
 const formSchema = z.object({
   email: z.string().email({ message: "Correo inválido" }),
-  password: z.string().min(4, { message: "Mínimo 4 caracteres" }),
+  password: z.string().min(5, { message: "Mínimo 5 caracteres" }),
 });
 
 export default function LoginPage() {
@@ -64,10 +65,17 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Error al iniciar sesión");
+        let message = data.message || "Error al iniciar sesión";
+
+        if (message === "Invalid Credentials") {
+          message = "Credenciales incorrectas.";
+        }
+
+        toast.error(message);
+        return;
       }
 
-      console.log(data);
+      toast.success("Sesión iniciada correctamente.");
       localStorage.setItem("token", data.token);
       router.push("/");
     } catch (error) {

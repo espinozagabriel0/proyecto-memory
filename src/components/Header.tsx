@@ -18,6 +18,8 @@ import { useRouter } from "next/navigation";
 export default function Header() {
   const router = useRouter();
   const { started } = useContext(AppContext);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -49,6 +51,7 @@ export default function Header() {
           email: data?.data.email,
           role: data?.data.role,
         });
+        setIsAuthenticated(true);
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -79,6 +82,7 @@ export default function Header() {
       console.log(data);
 
       localStorage.removeItem("token");
+      setIsAuthenticated(false);
       router.push("/login");
     } catch (error) {
       console.error(error);
@@ -149,7 +153,7 @@ export default function Header() {
               </div>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled={!isAuthenticated}>
               <Link
                 href="#"
                 className="flex items-center gap-2"
@@ -159,7 +163,7 @@ export default function Header() {
                 <span>Perfil</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled={!isAuthenticated}>
               <Link
                 href="#"
                 className="flex items-center gap-2"
@@ -170,16 +174,18 @@ export default function Header() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <button
-                type="button"
-                className="flex w-full items-center gap-2"
-                onClick={handleLogout}
-              >
-                <div className="h-4 w-4" />
-                <span>Cerrar sesión</span>
-              </button>
-            </DropdownMenuItem>
+            {isAuthenticated && (
+              <DropdownMenuItem asChild>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2"
+                  onClick={handleLogout}
+                >
+                  <div className="h-4 w-4" />
+                  <span>Cerrar sesión</span>
+                </button>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
         <Button

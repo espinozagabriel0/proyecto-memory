@@ -27,16 +27,17 @@ import Link from "next/link";
 import { Eye, EyeOff, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 // validación
 const formSchema = z
   .object({
     name: z.string().min(2, { message: "El nombre es requerido" }),
     email: z.string().email({ message: "Correo inválido" }),
-    password: z.string().min(6, { message: "Mínimo 6 caracteres" }),
+    password: z.string().min(5, { message: "Mínimo 5 caracteres" }),
     password_confirmation: z
       .string()
-      .min(6, { message: "Confirma tu contraseña" }),
+      .min(5, { message: "Confirma tu contraseña" }),
   })
   .refine((data) => data.password === data.password_confirmation, {
     message: "Las contraseñas no coinciden",
@@ -60,8 +61,6 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // console.log(values);
-
     try {
       const response = await fetch(
         "https://m7-uf4-laravel-production.up.railway.app/api/register",
@@ -76,8 +75,12 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Error al registrarse.");
+        toast.error("No se ha podido registrar el usuario.");
+        return;
       }
+
+      toast.success("Usuario registrado correctamente.");
+      form.reset();
       console.log(data);
     } catch (error) {
       console.error(error);
