@@ -22,20 +22,22 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useContext, useState } from "react";
-import { AppContext } from "@/context/AppContext";
+// import { useContext, useState } from "react";
+// import { AppContext } from "@/context/AppContext";
 import { Eye, EyeOff, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 // validación
 const formSchema = z
   .object({
     name: z.string().min(2, { message: "El nombre es requerido" }),
     email: z.string().email({ message: "Correo inválido" }),
-    password: z.string().min(6, { message: "Mínimo 6 caracteres" }),
+    password: z.string().min(5, { message: "Mínimo 5 caracteres" }),
     password_confirmation: z
       .string()
-      .min(6, { message: "Confirma tu contraseña" }),
+      .min(5, { message: "Confirma tu contraseña" }),
   })
   .refine((data) => data.password === data.password_confirmation, {
     message: "Las contraseñas no coinciden",
@@ -43,7 +45,7 @@ const formSchema = z
   });
 
 export default function RegisterPage() {
-  const { setUsers } = useContext(AppContext);
+  // const { setUsers } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
@@ -58,9 +60,31 @@ export default function RegisterPage() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    setUsers((prevUsers) => [...prevUsers, values]);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const response = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error("No se ha podido registrar el usuario.");
+        return;
+      }
+
+      toast.success("Usuario registrado correctamente.");
+      form.reset();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

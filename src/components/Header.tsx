@@ -11,17 +11,83 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggle from "@/theme/theme-toggle";
 import { cn } from "@/lib/utils";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/context/AppContext";
 import { useRouter } from "next/navigation";
+import { User } from "lucide-react";
 
 export default function Header() {
   const router = useRouter();
-  const { started, currentUser, setCurrentUser } = useContext(AppContext);
+  const { started } = useContext(AppContext);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    router.push("/login");
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    role: "",
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const getProfile = async () => {
+      try {
+        const response = await fetch(
+          "https://m7-uf4-laravel-production.up.railway.app/api/me",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Error fetching profile");
+        }
+
+        const data = await response.json();
+        setUserData({
+          name: data?.data.name,
+          email: data?.data.email,
+          role: data?.data.role,
+        });
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    // si hay un usuario logueado, obtener su perfil (NO hace falta estar autenticado para jugar el juego)
+    if (token) getProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/logout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error logging out.");
+      }
+      const data = await response.json();
+      console.log(data);
+
+      localStorage.removeItem("token");
+      setIsAuthenticated(false);
+      router.push("/login");
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6">
@@ -67,7 +133,9 @@ export default function Header() {
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
                 <AvatarImage src="/placeholder-user.jpg" />
-                <AvatarFallback>GB</AvatarFallback>
+                <AvatarFallback>
+                  <User />
+                </AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
             </Button>
@@ -76,19 +144,21 @@ export default function Header() {
             <div className="flex items-center gap-2 p-2">
               <Avatar className="h-8 w-8">
                 <AvatarImage src="/placeholder-user.jpg" />
-                <AvatarFallback>GB</AvatarFallback>
+                <AvatarFallback>
+                  <User />
+                </AvatarFallback>
               </Avatar>
               <div className="grid gap-0.5 leading-none">
                 <div className="font-semibold">
-                  {currentUser ? currentUser.name : "Sin Nombre"}
+                  {userData?.name || "Sin Nombre"}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {currentUser ? currentUser.email : "ejemplo@email.com"}
+                  {userData?.email || "ejemplo@email.com"}
                 </div>
               </div>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled={!isAuthenticated} className="cursor-pointer">
               <Link
                 href="#"
                 className="flex items-center gap-2"
@@ -98,7 +168,7 @@ export default function Header() {
                 <span>Perfil</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled={!isAuthenticated} className="cursor-pointer">
               <Link
                 href="#"
                 className="flex items-center gap-2"
@@ -109,16 +179,18 @@ export default function Header() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <button
-                type="button"
-                className="flex w-full items-center gap-2"
-                onClick={handleLogout}
-              >
-                <div className="h-4 w-4" />
-                <span>Cerrar sesión</span>
-              </button>
-            </DropdownMenuItem>
+            {isAuthenticated && (
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2"
+                  onClick={handleLogout}
+                >
+                  <div className="h-4 w-4" />
+                  <span>Cerrar sesión</span>
+                </button>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
         <Button
