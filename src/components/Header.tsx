@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/context/AppContext";
 import { useRouter } from "next/navigation";
+import { User } from "lucide-react";
 
 export default function Header() {
   const router = useRouter();
@@ -132,7 +133,9 @@ export default function Header() {
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
                 <AvatarImage src="/placeholder-user.jpg" />
-                <AvatarFallback>GB</AvatarFallback>
+                <AvatarFallback>
+                  <User />
+                </AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
             </Button>
@@ -141,7 +144,9 @@ export default function Header() {
             <div className="flex items-center gap-2 p-2">
               <Avatar className="h-8 w-8">
                 <AvatarImage src="/placeholder-user.jpg" />
-                <AvatarFallback>GB</AvatarFallback>
+                <AvatarFallback>
+                  <User />
+                </AvatarFallback>
               </Avatar>
               <div className="grid gap-0.5 leading-none">
                 <div className="font-semibold">
@@ -153,7 +158,7 @@ export default function Header() {
               </div>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled={!isAuthenticated}>
+            <DropdownMenuItem disabled={!isAuthenticated} className="cursor-pointer">
               <Link
                 href="#"
                 className="flex items-center gap-2"
@@ -163,7 +168,7 @@ export default function Header() {
                 <span>Perfil</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem disabled={!isAuthenticated}>
+            <DropdownMenuItem disabled={!isAuthenticated} className="cursor-pointer">
               <Link
                 href="#"
                 className="flex items-center gap-2"
@@ -175,7 +180,7 @@ export default function Header() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {isAuthenticated && (
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="cursor-pointer">
                 <button
                   type="button"
                   className="flex w-full items-center gap-2"
