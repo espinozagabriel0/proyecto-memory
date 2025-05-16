@@ -23,6 +23,10 @@ type AppContextProps = {
   setFlippedIds: Dispatch<SetStateAction<string[]>>;
   matchedCards: number[];
   setMatchedCards: Dispatch<SetStateAction<number[]>>;
+  users: User[];
+  setUsers: Dispatch<SetStateAction<User[]>>;
+  currentUser: User | null;
+  setCurrentUser: Dispatch<SetStateAction<User | null>>;
 };
 
 const defaultValues: AppContextProps = {
@@ -40,6 +44,10 @@ const defaultValues: AppContextProps = {
   setFlippedIds: () => {},
   matchedCards: [],
   setMatchedCards: () => {},
+  users: [],
+  setUsers: () => {},
+  currentUser: null,
+  setCurrentUser: () => {},
 };
 
 type Card = {
@@ -47,6 +55,14 @@ type Card = {
   uniqueId: string;
   name: string;
   url: string;
+};
+
+type User = {
+  id?: number;
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation?: string;
 };
 
 const AppContext = createContext<AppContextProps>(defaultValues);
@@ -65,6 +81,63 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     console.log("Global Points:", globalPoints);
   }, [globalPoints]);
 
+  // auth
+  const defaultUsers = [
+    {
+      id: 1,
+      name: "Juan Pérez",
+      email: "juan.perez@email.com",
+      password: "juan1234",
+    },
+    {
+      id: 2,
+      name: "María García",
+      email: "maria.garcia@email.com",
+      password: "maria5678",
+    },
+    {
+      id: 3,
+      name: "Carlos López",
+      email: "carlos.lopez@email.com",
+      password: "carlos91011",
+    },
+  ];
+
+  const [users, setUsers] = useState<User[]>(defaultUsers);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // usuarios
+      const storedUsers = localStorage.getItem("users");
+      if (storedUsers) {
+        setUsers(JSON.parse(storedUsers));
+      } else {
+        setUsers(defaultUsers);
+      }
+
+      // usuario actual
+      const storedCurrentUser = localStorage.getItem("currentUser");
+      if (storedCurrentUser) {
+        setCurrentUser(JSON.parse(storedCurrentUser));
+      } else {
+        setCurrentUser(null);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+  }, [users]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+    }
+  }, [currentUser]);
+
   return (
     <AppContext.Provider
       value={{
@@ -82,6 +155,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setFlippedIds,
         matchedCards,
         setMatchedCards,
+        users,
+        setUsers,
+        currentUser,
+        setCurrentUser,
       }}
     >
       {children}
