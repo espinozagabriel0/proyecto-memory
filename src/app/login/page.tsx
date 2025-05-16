@@ -26,8 +26,9 @@ import Link from "next/link";
 // import { AppContext } from "@/context/AppContext";
 import { Eye, EyeOff, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import toast from "react-hot-toast";
+import { AppContext } from "@/context/AppContext";
 
 // Define schema
 const formSchema = z.object({
@@ -36,7 +37,7 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
-  // const { users, setCurrentUser } = useContext(AppContext);
+  const { setIsAuthenticated, getProfile } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
@@ -76,7 +77,10 @@ export default function LoginPage() {
       }
 
       toast.success("Sesión iniciada correctamente.");
+      setIsAuthenticated(true);
       localStorage.setItem("token", data.token);
+      await getProfile();
+
       router.push("/");
     } catch (error) {
       console.error(error);

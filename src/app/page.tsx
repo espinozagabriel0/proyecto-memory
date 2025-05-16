@@ -27,6 +27,7 @@ export default function Home() {
     setGlobalClicks,
     setGlobalPoints,
     matchedCards,
+    isAuthenticated,
   } = useContext(AppContext);
   const [cards, setCards] = useState<Card[]>([]);
   // estado para controlar el loading del fetch
@@ -155,6 +156,14 @@ export default function Home() {
             pulsa <span className="text-green-700 font-semibold">jugar</span>{" "}
             para comenzar de nuevo.
           </p>
+
+          {/* si el usuario no esta autenticado, indicarle que para guardar sus partidas y demás, tiene que autenticarse */}
+          {!isAuthenticated && (
+            <p className="text-red-700 font-semibold">
+              Nota: Para que tus partidas se guarden tienes que estar
+              autenticado.
+            </p>
+          )}
         </div>
       )}
 
