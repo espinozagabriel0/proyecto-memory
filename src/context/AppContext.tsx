@@ -32,6 +32,8 @@ type AppContextProps = {
   userData: UserDataRetrieved | null;
   logout: () => Promise<void>;
   getProfile: () => Promise<void>;
+  currentGameId: number | null;
+  setCurrentGameId: Dispatch<SetStateAction<number | null>>;
 };
 
 const defaultValues: AppContextProps = {
@@ -58,6 +60,8 @@ const defaultValues: AppContextProps = {
   userData: null,
   logout: async () => {},
   getProfile: async () => {},
+  currentGameId: null,
+  setCurrentGameId: () => {},
 };
 
 type Card = {
@@ -95,6 +99,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState<UserDataRetrieved | null>(null);
+
+  const [currentGameId, setCurrentGameId] = useState<number | null>(null);
 
   useEffect(() => {
     console.log("Global Points:", globalPoints);
@@ -251,6 +257,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         userData,
         logout,
         getProfile,
+        currentGameId,
+        setCurrentGameId,
       }}
     >
       {children}

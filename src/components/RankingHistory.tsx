@@ -107,12 +107,12 @@ export default function RankingHistory() {
 
             <div
               className={cn(
-                "overflow-hidden border-2 rounded-lg transition-all hover:shadow-md bg-white",
+                "overflow-hidden border-2 rounded-lg transition-all hover:shadow-md ",
                 (index === 2 || index === 4 || index === 5) && "text-slate-900"
               )}
             >
               <div className={cn("h-2", rankColors[index])} />
-              <div className="p-2">
+              <div className="p-2 mt-1">
                 <div className="flex items-center mb-3 mt-2">
                   <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mr-3">
                     <User className="h-6 w-6 text-slate-500" />

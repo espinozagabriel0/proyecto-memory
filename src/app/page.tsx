@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AppContext } from "@/context/AppContext";
 import { Clock, MousePointerClick, Star } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 type Card = {
   id: number;
@@ -28,10 +29,13 @@ export default function Home() {
     setGlobalPoints,
     matchedCards,
     isAuthenticated,
+    currentGameId,
+    setCurrentGameId,
   } = useContext(AppContext);
   const [cards, setCards] = useState<Card[]>([]);
-  // estado para controlar el loading del fetch
+  // estado para controlar el loading del fetch (cards)
   const [loading, setLoading] = useState(false);
+
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [firstGame, setFirstGame] = useState(true);
 
@@ -61,11 +65,83 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  // tambien, hacer una peticion post para guardar la partida en bd y al terminar la partida, hacer un update de esa partida , con los datos obtenidos
+
+  const handleBeginGame = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/games",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(response);
+
+      if (!response.ok) {
+        throw new Error("No se pudo crear la partida");
+      }
+
+      const data = await response.json();
+      const id = data?.game.id;
+
+      setCurrentGameId(id);
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al iniciar la partida");
+    }
+  };
+
+  const handleUpdateGame = async (
+    totalClicks: number,
+    totalPoints: number,
+    totalDuration: number
+  ) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!currentGameId || !token) {
+        toast.error("No se ha encontrado la partida actual");
+        return;
+      }
+
+      const response = await fetch(
+        `https://m7-uf4-laravel-production.up.railway.app/api/games/${currentGameId}/finish`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            clicks: totalClicks,
+            points: totalPoints,
+            duration: totalDuration,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("No se pudo crear la partida");
+      }
+      const data = await response.json();
+      console.log("Datos partida finalizada y guardada: ", data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchCards();
   }, []);
 
   const handleTimer = async () => {
+    // reset estados iniciales
     setGlobalClicks(0);
     setGlobalPoints(0);
     setFlippedIds([]);
@@ -77,6 +153,8 @@ export default function Home() {
     } else {
       setFirstGame(false);
     }
+
+    await handleBeginGame();
 
     setGlobalTimer(20);
     setStarted(true);
@@ -98,6 +176,7 @@ export default function Home() {
       clearInterval(intervalId);
       setIntervalId(null);
       setStarted(false);
+      handleUpdateGame(globalClicks, globalPoints, Math.abs(globalTimer - 20));
     }
   }, [globalTimer, intervalId]);
 

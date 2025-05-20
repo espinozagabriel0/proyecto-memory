@@ -13,7 +13,7 @@ import ThemeToggle from "@/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 import { useContext } from "react";
 import { AppContext } from "@/context/AppContext";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { User } from "lucide-react";
 
 export default function Header() {
@@ -91,6 +91,9 @@ export default function Header() {
     //   console.error(error);
     // }
   };
+
+  const pathname = usePathname();
+
   return (
     <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6">
       <Link href="#" className="flex items-center gap-2" prefetch={false}>
@@ -99,7 +102,10 @@ export default function Header() {
       <nav className="hidden items-center gap-6 lg:flex">
         <Link
           href="/"
-          className="text-sm font-medium transition-colors hover:text-primary"
+          className={cn(
+            "text-sm font-medium transition-colors hover:text-primary text-slate-300",
+            pathname === "/" && "text-primary"
+          )}
           prefetch={false}
         >
           Juego
@@ -107,7 +113,8 @@ export default function Header() {
         <Link
           href="/about"
           className={cn(
-            "text-sm font-medium transition-colors hover:text-primary",
+            "text-sm font-medium transition-colors hover:text-primary text-slate-300",
+            pathname === "/about" && "text-primary",
             started && "pointer-events-none opacity-50"
           )}
           aria-disabled={started}
@@ -119,7 +126,8 @@ export default function Header() {
         <Link
           href="/partidas"
           className={cn(
-            "text-sm font-medium transition-colors hover:text-primary",
+            "text-sm font-medium transition-colors hover:text-primary text-slate-300",
+            pathname === "/partidas" && "text-primary",
             started && "pointer-events-none opacity-50"
           )}
           aria-disabled={started}
