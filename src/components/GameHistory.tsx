@@ -10,117 +10,53 @@ import {
 } from "@/components/ui/table";
 import { Clock, MousePointerClick, Search, Trophy } from "lucide-react";
 import { Input } from "./ui/input";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { format } from "date-fns";
+
+type GameData = {
+  id: number;
+  created_at: Date;
+  updated_at: Date;
+  user_id: number;
+  clicks: number;
+  points: number;
+  duration: number;
+};
 export default function GameHistory() {
-  //   const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [gameHistoryData, setGameHistoryData] = useState<GameData[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    // const fetchData = async () => {
-    //   try {
-    //     const data = await getUserGameHistory();
-    //     setGameHistoryData(data);
-    //   } catch (error) {
-    //     console.error("Error fetching game history:", error);
-    //   } finally {
-    //     setIsLoading(false);
-    //   }
-    // };
-    // fetchData();
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          "https://m7-uf4-laravel-production.up.railway.app/api/games",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Error en la respuesta del servidor");
+        }
+        const data = await response.json();
+        setGameHistoryData(data || []);
+      } catch (error) {
+        console.error("Error fetching game history:", error);
+        toast.error("No se ha podido obtener las partidas del jugador.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, []);
-
-  // Ejemplo de datos para el historial de partidas del usuario actual
-  const gameHistoryData = [
-    {
-      id: 1,
-      created_at: "2023-05-15T14:30:00Z",
-      updated_at: "2023-05-15T14:35:20Z",
-      user_id: "user123", // ID del usuario actual
-      clicks: 24,
-      points: 850,
-      duration: 320, // en segundos (5:20)
-    },
-    {
-      id: 2,
-      created_at: "2023-05-17T09:20:00Z",
-      updated_at: "2023-05-17T09:23:10Z",
-      user_id: "user123",
-      clicks: 20,
-      points: 900,
-      duration: 190, // (3:10)
-    },
-    {
-      id: 3,
-      created_at: "2023-05-19T08:45:00Z",
-      updated_at: "2023-05-19T08:48:30Z",
-      user_id: "user123",
-      clicks: 28,
-      points: 800,
-      duration: 230, // (3:50)
-    },
-    {
-      id: 4,
-      created_at: "2023-05-20T15:10:00Z",
-      updated_at: "2023-05-20T15:14:45Z",
-      user_id: "user123",
-      clicks: 22,
-      points: 880,
-      duration: 210, // (3:30)
-    },
-    {
-      id: 5,
-      created_at: "2023-05-21T11:30:00Z",
-      updated_at: "2023-05-21T11:33:20Z",
-      user_id: "user123",
-      clicks: 18,
-      points: 920,
-      duration: 200, // (3:20)
-    },
-    {
-      id: 6,
-      created_at: "2023-05-22T17:45:00Z",
-      updated_at: "2023-05-22T17:48:10Z",
-      user_id: "user123",
-      clicks: 26,
-      points: 830,
-      duration: 240, // (4:00)
-    },
-    {
-      id: 7,
-      created_at: "2023-05-23T10:05:00Z",
-      updated_at: "2023-05-23T10:08:30Z",
-      user_id: "user123",
-      clicks: 19,
-      points: 910,
-      duration: 195, // (3:15)
-    },
-    {
-      id: 8,
-      created_at: "2023-05-24T14:20:00Z",
-      updated_at: "2023-05-24T14:23:45Z",
-      user_id: "user123",
-      clicks: 21,
-      points: 890,
-      duration: 205, // (3:25)
-    },
-    {
-      id: 9,
-      created_at: "2023-05-25T09:30:00Z",
-      updated_at: "2023-05-25T09:34:10Z",
-      user_id: "user123",
-      clicks: 17,
-      points: 930,
-      duration: 185, // (3:05)
-    },
-    {
-      id: 10,
-      created_at: "2023-05-26T16:15:00Z",
-      updated_at: "2023-05-26T16:18:20Z",
-      user_id: "user123",
-      clicks: 23,
-      points: 870,
-      duration: 215, // (3:35)
-    },
-  ];
 
   return (
     <div className="p-6">
@@ -137,10 +73,10 @@ export default function GameHistory() {
           <div className="relative flex-1">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Busca por fecha, id, puntos..."
+              placeholder="Busca por id, puntos, clicks, duración..."
               className="pl-8"
-              // value={searchTerm}
-              // onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
@@ -176,45 +112,56 @@ export default function GameHistory() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {gameHistoryData.map((game) => (
-                <TableRow key={game.id}>
-                  <TableCell className="font-medium">{game.id}</TableCell>
-                  <TableCell>{game.created_at}</TableCell>
-                  <TableCell>{game.updated_at}</TableCell>
-                  <TableCell>{game.clicks}</TableCell>
-                  <TableCell className="font-medium">{game.points}</TableCell>
-                  <TableCell>{game.duration}</TableCell>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    Cargando historial de partidas...
+                  </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-            {/* <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                      Cargando historial de partidas...
-                    </TableCell>
-                  </TableRow>
-                ) : sortedData.length > 0 ? (
-                  sortedData.map((game) => (
+              ) : gameHistoryData.length > 0 ? (
+                gameHistoryData
+                  .filter((game) => {
+                    const search = searchTerm.toLowerCase().trim();
+
+                    if (search == "") {
+                      return true;
+                    }
+                    return (
+                      String(game?.id).toLowerCase().includes(searchTerm) ||
+                      String(game?.clicks).toLowerCase().includes(searchTerm) ||
+                      String(game?.duration)
+                        .toLowerCase()
+                        .includes(searchTerm) ||
+                      String(game?.created_at)
+                        .toLowerCase()
+                        .includes(searchTerm) ||
+                      String(game?.points).toLowerCase().includes(searchTerm)
+                    );
+                  })
+                  .map((game) => (
                     <TableRow key={game.id}>
                       <TableCell className="font-medium">{game.id}</TableCell>
-                      <TableCell>{formatDate(game.created_at)}</TableCell>
-                      <TableCell>{formatDate(game.updated_at)}</TableCell>
+                      <TableCell>
+                        {format(game.created_at, "dd-MM-yyyy HH:mm")}
+                      </TableCell>
+                      <TableCell>
+                        {format(game.updated_at, "dd-MM-yyyy HH:mm")}
+                      </TableCell>
                       <TableCell>{game.clicks}</TableCell>
                       <TableCell className="font-medium">
                         {game.points}
                       </TableCell>
-                      <TableCell>{formatDuration(game.duration)}</TableCell>
+                      <TableCell>{game.duration}</TableCell>
                     </TableRow>
                   ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                      No hay resultados.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody> */}
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    No hay resultados.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
           </Table>
         </div>
       </div>

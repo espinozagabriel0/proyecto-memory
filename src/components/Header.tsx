@@ -104,7 +104,7 @@ export default function Header() {
           href="/"
           className={cn(
             "text-sm font-medium transition-colors hover:text-primary text-slate-300",
-            pathname === "/" && "text-primary"
+            pathname === "/" && "text-primary dark:text-green-400"
           )}
           prefetch={false}
         >
@@ -114,7 +114,7 @@ export default function Header() {
           href="/about"
           className={cn(
             "text-sm font-medium transition-colors hover:text-primary text-slate-300",
-            pathname === "/about" && "text-primary",
+            pathname === "/about" && "text-primary dark:text-green-400",
             started && "pointer-events-none opacity-50"
           )}
           aria-disabled={started}
@@ -127,7 +127,7 @@ export default function Header() {
           href="/partidas"
           className={cn(
             "text-sm font-medium transition-colors hover:text-primary text-slate-300",
-            pathname === "/partidas" && "text-primary",
+            pathname === "/partidas" && "text-primary dark:text-green-400",
             started && "pointer-events-none opacity-50"
           )}
           aria-disabled={started}
