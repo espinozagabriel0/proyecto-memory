@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Clock, MousePointerClick, Search, Trophy } from "lucide-react";
+import { Clock, MousePointerClick, Search, Trash2, Trophy } from "lucide-react";
 import { Input } from "./ui/input";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -57,6 +57,31 @@ export default function GameHistory() {
     };
     fetchData();
   }, []);
+
+  const handleDelete = async (gameId: number) => {
+    try {
+      if (!gameId) return;
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `https://m7-uf4-laravel-production.up.railway.app/api/games/${gameId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Error en la respuesta del servidor");
+      }
+      const data = await response.json();
+      toast.success(data.message || "Partida eliminada correctamente.");
+    } catch (error) {
+      console.error("Error deleting game:", error);
+      toast.error("No se ha podido eliminar la partida.");
+    }
+  };
 
   return (
     <div className="p-6">
@@ -109,6 +134,7 @@ export default function GameHistory() {
                     Duration
                   </div>
                 </TableHead>
+                <TableHead className="cursor-pointer">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,6 +178,15 @@ export default function GameHistory() {
                         {game.points}
                       </TableCell>
                       <TableCell>{game.duration}</TableCell>
+                      <TableCell>
+                        <span title="Eliminar partida">
+                          <Trash2
+                            onClick={() => handleDelete(game?.id)}
+                            className="text-red-600 cursor-pointer"
+                            size={20}
+                          />
+                        </span>
+                      </TableCell>
                     </TableRow>
                   ))
               ) : (
