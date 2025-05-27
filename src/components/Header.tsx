@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggle from "@/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 import { useContext } from "react";
@@ -19,77 +19,10 @@ import { User } from "lucide-react";
 export default function Header() {
   const router = useRouter();
   const { started, logout, userData, isAuthenticated } = useContext(AppContext);
-  // const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  // const [userData, setUserData] = useState({
-  //   name: "",
-  //   email: "",
-  //   role: "",
-  // });
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   const getProfile = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         "https://m7-uf4-laravel-production.up.railway.app/api/me",
-  //         {
-  //           method: "GET",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-
-  //       if (!response.ok) {
-  //         throw new Error("Error fetching profile");
-  //       }
-
-  //       const data = await response.json();
-  //       setUserData({
-  //         name: data?.data.name,
-  //         email: data?.data.email,
-  //         role: data?.data.role,
-  //       });
-  //       setIsAuthenticated(true);
-  //     } catch (error) {
-  //       console.error("Error fetching profile:", error);
-  //     }
-  //   };
-
-  //   // si hay un usuario logueado, obtener su perfil (NO hace falta estar autenticado para jugar el juego)
-  //   if (token) getProfile();
-  // }, []);
 
   const handleLogout = async () => {
     await logout();
     router.push("login");
-    // try {
-    //   const token = localStorage.getItem("token");
-    //   const response = await fetch(
-    //     "https://m7-uf4-laravel-production.up.railway.app/api/logout",
-    //     {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     }
-    //   );
-
-    //   if (!response.ok) {
-    //     throw new Error("Error logging out.");
-    //   }
-    //   const data = await response.json();
-    //   console.log(data);
-
-    //   localStorage.removeItem("token");
-    //   setIsAuthenticated(false);
-    //   router.push("/login");
-    // } catch (error) {
-    //   console.error(error);
-    // }
   };
 
   const pathname = usePathname();
