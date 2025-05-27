@@ -69,6 +69,21 @@ export default function Header() {
         >
           Partidas
         </Link>
+        {isAuthenticated && (
+          <Link
+            href="/gestion"
+            className={cn(
+              "text-sm font-medium transition-colors hover:text-primary text-slate-300",
+              pathname === "/gestion" && "text-primary dark:text-green-400",
+              started && "pointer-events-none opacity-50"
+            )}
+            aria-disabled={started}
+            tabIndex={started ? -1 : 0}
+            prefetch={false}
+          >
+            Gestión
+          </Link>
+        )}
       </nav>
       <div className="flex items-center gap-4">
         <DropdownMenu>
