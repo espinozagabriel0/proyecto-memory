@@ -142,7 +142,7 @@ export default function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-user.jpg" />
+                {/* <AvatarImage src="/placeholder-user.jpg" /> */}
                 <AvatarFallback>
                   <User />
                 </AvatarFallback>
@@ -153,7 +153,7 @@ export default function Header() {
           <DropdownMenuContent align="end">
             <div className="flex items-center gap-2 p-2">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-user.jpg" />
+                {/* <AvatarImage src="/placeholder-user.jpg" /> */}
                 <AvatarFallback>
                   <User />
                 </AvatarFallback>

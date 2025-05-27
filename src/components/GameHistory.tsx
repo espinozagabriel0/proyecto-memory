@@ -8,11 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Clock, MousePointerClick, Search, Trash2, Trophy } from "lucide-react";
+import { Clock, MousePointerClick, Search, Trophy } from "lucide-react";
 import { Input } from "./ui/input";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
+import AlertConfirmationDelete from "./AlertConfirmationDelete";
 
 type GameData = {
   id: number;
@@ -28,33 +29,34 @@ export default function GameHistory() {
   const [gameHistoryData, setGameHistoryData] = useState<GameData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          "https://m7-uf4-laravel-production.up.railway.app/api/games",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Error en la respuesta del servidor");
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/games",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-        const data = await response.json();
-        setGameHistoryData(data || []);
-      } catch (error) {
-        console.error("Error fetching game history:", error);
-        toast.error("No se ha podido obtener las partidas del jugador.");
-      } finally {
-        setIsLoading(false);
+      );
+      if (!response.ok) {
+        throw new Error("Error en la respuesta del servidor");
       }
-    };
+      const data = await response.json();
+      setGameHistoryData(data || []);
+    } catch (error) {
+      console.error("Error fetching game history:", error);
+      toast.error("No se ha podido obtener las partidas del jugador.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -77,6 +79,9 @@ export default function GameHistory() {
       }
       const data = await response.json();
       toast.success(data.message || "Partida eliminada correctamente.");
+
+      // hacer otro fetch
+      fetchData();
     } catch (error) {
       console.error("Error deleting game:", error);
       toast.error("No se ha podido eliminar la partida.");
@@ -179,13 +184,18 @@ export default function GameHistory() {
                       </TableCell>
                       <TableCell>{game.duration}</TableCell>
                       <TableCell>
-                        <span title="Eliminar partida">
+                        {/* <span title="Eliminar partida">
                           <Trash2
                             onClick={() => handleDelete(game?.id)}
                             className="text-red-600 cursor-pointer"
                             size={20}
                           />
-                        </span>
+                        </span> */}
+                        <AlertConfirmationDelete
+                          id={game?.id}
+                          type={"game"}
+                          onConfirm={handleDelete}
+                        />
                       </TableCell>
                     </TableRow>
                   ))
