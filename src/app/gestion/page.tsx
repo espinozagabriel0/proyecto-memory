@@ -20,11 +20,12 @@ import {
   Edit,
   Trash2,
   Search,
-  Play,
-  Pause,
   Star,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { differenceInDays, parseISO } from "date-fns";
+import UserDialog from "@/components/dialogs/UserDialog";
 
 type User = {
   id: number;
@@ -35,41 +36,76 @@ type User = {
   role: "admin" | "user";
 };
 
+type GameData = {
+  id: number;
+  created_at: string;
+  updated_at: Date;
+  user_id: number;
+  clicks: number;
+  points: number;
+  duration: number;
+  user: User;
+};
+
 export default function Page() {
   const [users, setUsers] = useState<User[]>([]);
+  const [partidas, setPartidas] = useState<GameData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const router = useRouter();
+
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchAll = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         const token = localStorage.getItem("token");
-        const response = await fetch(
-          "https://m7-uf4-laravel-production.up.railway.app/api/users",
-          {
+        const [usersRes, partidasRes] = await Promise.all([
+          fetch("https://m7-uf4-laravel-production.up.railway.app/api/users", {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-          }
-        );
-        if (!response.ok) {
+          }),
+          fetch(
+            "https://m7-uf4-laravel-production.up.railway.app/api/gamesAll",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          ),
+        ]);
+
+        //
+        if (usersRes.status === 403 || partidasRes.status === 403) {
+          router.push("/");
+          return;
+        }
+
+        if (!usersRes.ok || !partidasRes.ok) {
           throw new Error("Error en la respuesta del servidor");
         }
-        const usersData = await response.json();
+
+        const usersData = await usersRes.json();
+        const partidasData = await partidasRes.json();
+
         setUsers(usersData?.data || []);
+        setPartidas(partidasData || []);
       } catch (error) {
-        console.error("Error fetching users data:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchUsers();
-  }, []);
+    fetchAll();
+  }, [router]);
 
   console.log("users", users);
+  console.log("partidas", partidas);
 
   if (isLoading) {
     return "cargando...";
@@ -112,10 +148,11 @@ export default function Page() {
                 <Search className="h-4 w-4" />
                 <Input placeholder="Buscar usuarios..." />
               </div>
-              <Button className="flex items-center gap-2">
+              {/* <Button className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 Nuevo Usuario
-              </Button>
+              </Button> */}
+              <UserDialog />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -149,10 +186,7 @@ export default function Page() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Edit className="h-3 w-3 mr-1" />
-                        Editar
-                      </Button>
+                      <UserDialog user={user} isEditing={true} />
                       <Button variant="outline" size="sm" className="flex-1">
                         <Trash2 className="h-3 w-3 mr-1" />
                         Eliminar
@@ -178,82 +212,77 @@ export default function Page() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6].map((game) => (
-                <Card key={game} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">
-                          Partida #{game.toString().padStart(3, "0")}
-                        </CardTitle>
-                        <CardDescription>
-                          Creada hace {Math.floor(Math.random() * 7) + 1} días
-                        </CardDescription>
-                      </div>
-                      <Badge
-                        variant={
-                          game % 3 === 0
-                            ? "default"
-                            : game % 3 === 1
-                            ? "secondary"
-                            : "destructive"
-                        }
-                      >
-                        {game % 3 === 0
-                          ? "Activa"
-                          : game % 3 === 1
-                          ? "Pausada"
-                          : "Finalizada"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Jugadores:
-                        </span>
-                        <span className="font-medium">
-                          {Math.floor(Math.random() * 4) + 2}/6
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Duración:</span>
-                        <span className="font-medium">
-                          {Math.floor(Math.random() * 120) + 30}min
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Puntuación:
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span className="font-medium">
-                            {(Math.random() * 2 + 3).toFixed(1)}
+              {partidas.map((game) => {
+                const dias = differenceInDays(
+                  new Date(),
+                  parseISO(game.created_at)
+                );
+                return (
+                  <Card
+                    key={game.id}
+                    className="hover:shadow-md transition-shadow"
+                  >
+                    <CardHeader>
+                      <CardTitle className="text-lg">
+                        Partida #{game.id.toString().padStart(3, "0")}
+                      </CardTitle>
+                      <CardDescription>
+                        Creada hace {dias} día{dias !== 1 ? "s" : ""} por{" "}
+                        {game.user?.name}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Clicks:</span>
+                          <span className="font-medium">{game.clicks}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Duración:
                           </span>
+                          <span className="font-medium">{game.duration} s</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Puntuación (parejas):
+                            {/* hay 12 cartas, 6 parejas,  */}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            <span className="font-medium">{game.points}</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Puntuación (% acierto):
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            <span className="font-medium">
+                              {((game.points * 100) / 6).toFixed(2)}%
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Usuario:
+                          </span>
+                          <span className="font-medium">{game.user?.name}</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <Button variant="outline" size="sm">
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex gap-2 pt-2">
-                        <Button variant="outline" size="sm" className="flex-1">
-                          {game % 3 === 0 ? (
-                            <Pause className="h-3 w-3 mr-1" />
-                          ) : (
-                            <Play className="h-3 w-3 mr-1" />
-                          )}
-                          {game % 3 === 0 ? "Pausar" : "Reanudar"}
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
 

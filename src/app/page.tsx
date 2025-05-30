@@ -277,44 +277,46 @@ export default function Home() {
           </div>
         )}
 
-      {matchedCards.length * 2 !== cards.length && !started && globalTimer == 0 &&  (
-        <div
-          className="flex flex-col items-center justify-center 
+      {matchedCards.length * 2 !== cards.length &&
+        !started &&
+        globalTimer == 0 && (
+          <div
+            className="flex flex-col items-center justify-center 
       bg-gradient-to-br from-red-50 to-red-100 
       dark:from-gray-900 dark:to-gray-800 
       rounded-xl shadow-lg p-8 transition-colors"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <BanIcon className="w-10 h-10 text-red-600 dark:text-red-400 drop-shadow-lg" />
-            <h2 className="text-4xl font-extrabold text-red-700 dark:text-red-400 drop-shadow-lg">
-              ¡Fin de la partida!
-            </h2>
-          </div>
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <BanIcon className="w-10 h-10 text-red-600 dark:text-red-400 drop-shadow-lg" />
+              <h2 className="text-4xl font-extrabold text-red-700 dark:text-red-400 drop-shadow-lg">
+                ¡Fin de la partida!
+              </h2>
+            </div>
 
-          <p className="text-lg text-gray-700 dark:text-gray-200 mb-2 text-center">
-            Pulsa{" "}
-            <span className="text-green-700 dark:text-green-400 font-semibold">
-              Jugar
-            </span>{" "}
-            para comenzar de nuevo.
-          </p>
+            <p className="text-lg text-gray-700 dark:text-gray-200 mb-2 text-center">
+              Pulsa{" "}
+              <span className="text-green-700 dark:text-green-400 font-semibold">
+                Jugar
+              </span>{" "}
+              para comenzar de nuevo.
+            </p>
 
-          {!isAuthenticated && (
-            <div
-              className="flex items-center gap-2 mt-3 
+            {!isAuthenticated && (
+              <div
+                className="flex items-center gap-2 mt-3 
           bg-white/80 dark:bg-gray-900/80 
           rounded-lg p-3 shadow-inner transition-colors"
-            >
-              <span className="text-red-700 dark:text-red-400 font-bold">
-                Nota:
-              </span>
-              <span className="text-gray-700 dark:text-gray-200 font-medium">
-                Para que tus partidas se guarden tienes que estar autenticado.
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+              >
+                <span className="text-red-700 dark:text-red-400 font-bold">
+                  Nota:
+                </span>
+                <span className="text-gray-700 dark:text-gray-200 font-medium">
+                  Para que tus partidas se guarden tienes que estar autenticado.
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
         {loading
