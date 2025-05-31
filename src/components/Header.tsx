@@ -69,7 +69,7 @@ export default function Header() {
         >
           Partidas
         </Link>
-        {isAuthenticated && (
+        {isAuthenticated && userData?.role === "admin" && (
           <Link
             href="/gestion"
             className={cn(

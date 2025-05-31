@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogFooter,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
+import toast from "react-hot-toast";
 
 type User = {
   id: number;
@@ -48,9 +50,11 @@ const userSchema = z
 export default function UserDialog({
   user = null,
   isEditing = false,
+  onConfirm = () => {},
 }: {
   user?: User | null;
   isEditing?: boolean;
+  onConfirm?: () => void;
 }) {
   const form = useForm({
     resolver: zodResolver(userSchema),
@@ -73,33 +77,80 @@ export default function UserDialog({
     });
   }, [user, form]);
 
-  const onSubmit = async (values: any) => {
+  const handleRegister = async (values: unknown) => {
+    try {
+      const response = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error("No se ha podido crear el usuario.");
+        return;
+      }
+
+      toast.success("Usuario creado correctamente.");
+      form.reset();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleUpdateUser = async (values: unknown, userId: number) => {
+    try {
+      if (!userId) return;
+
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `https://m7-uf4-laravel-production.up.railway.app/api/users/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(values),
+        }
+      );
+      const data = await response.json();
+
+      console.log(response, data);
+
+      if (!response.ok) {
+        toast.error("No se ha podido actualizar el usuario.");
+        return;
+      }
+
+      toast.success("Usuario actualizado correctamente.");
+      form.reset();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onSubmit = async (values: unknown) => {
     console.log(values);
-    // try {
-    //   if (isEditing) {
-    //   } else {
-    //   }
 
-    //   const token = localStorage.getItem("token");
-    //   const response = await fetch(
-    //     `https://m7-uf4-laravel-production.up.railway.app/api/users/${user?.id}`,
-    //     {
-    //       method: "PUT",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //       body: JSON.stringify(values),
-    //     }
-    //   );
-    //   const data = await response.json();
+    try {
+      if (isEditing && user?.id) {
+        await handleUpdateUser(values, user.id);
+      } else {
+        await handleRegister(values);
+      }
 
-    //   if (!response.ok) {
-    //     throw new Error("Error");
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    // }
+      onConfirm();
+      form.reset();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -123,6 +174,7 @@ export default function UserDialog({
             {isEditing ? "Editar usuario" : "Crear usuario"}
           </DialogTitle>
         </DialogHeader>
+        <DialogDescription>{""}</DialogDescription>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">

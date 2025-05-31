@@ -22,10 +22,13 @@ import {
   Search,
   Star,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { differenceInDays, parseISO } from "date-fns";
 import UserDialog from "@/components/dialogs/UserDialog";
+import AlertConfirmationDelete from "@/components/AlertConfirmationDelete";
+import toast from "react-hot-toast";
+import GameDialog from "@/components/dialogs/GameDialog";
 
 type User = {
   id: number;
@@ -39,70 +42,149 @@ type User = {
 type GameData = {
   id: number;
   created_at: string;
-  updated_at: Date;
+  updated_at: string;
   user_id: number;
   clicks: number;
   points: number;
   duration: number;
-  user: User;
+  user?: User;
 };
 
 export default function Page() {
   const [users, setUsers] = useState<User[]>([]);
   const [partidas, setPartidas] = useState<GameData[]>([]);
+  const [selectedTab, setSelectedTab] = useState("usuarios");
+  const [gamesLoaded, setGamesLoaded] = useState(false);
+  // const [tarjetasLoaded, setTarjetasLoaded] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem("token");
-        const [usersRes, partidasRes] = await Promise.all([
-          fetch("https://m7-uf4-laravel-production.up.railway.app/api/users", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-          fetch(
-            "https://m7-uf4-laravel-production.up.railway.app/api/gamesAll",
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          ),
-        ]);
-
-        //
-        if (usersRes.status === 403 || partidasRes.status === 403) {
-          router.push("/");
-          return;
+  // cargar usuarios y partidas
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/users",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-
-        if (!usersRes.ok || !partidasRes.ok) {
-          throw new Error("Error en la respuesta del servidor");
-        }
-
-        const usersData = await usersRes.json();
-        const partidasData = await partidasRes.json();
-
-        setUsers(usersData?.data || []);
-        setPartidas(partidasData || []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
+      );
+      if (res.status === 403) {
+        router.push("/");
+        return;
       }
-    };
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
+      const usersData = await res.json();
+      setUsers(usersData?.data || []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchAll();
-  }, [router]);
+  const fetchGames = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/gamesAll",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (res.status === 403) {
+        router.push("/");
+        return;
+      }
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
+      const gamesData = await res.json();
+      setPartidas(gamesData || []);
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTabChange = (value: SetStateAction<string>) => {
+    setSelectedTab(value);
+
+    if (value === "partidas" && !gamesLoaded) {
+      fetchGames();
+      setGamesLoaded(true);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleDeleteUser = async (userId: number) => {
+    try {
+      if (!userId) return;
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `https://m7-uf4-laravel-production.up.railway.app/api/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Error en la respuesta del servidor");
+      }
+      const data = await response.json();
+      toast.success(data.message || "Usuario eliminado correctamente.");
+
+      // hacer otro fetch
+      fetchUsers();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast.error("No se ha podido eliminar el usuario.");
+    }
+  };
+
+  const handleDeleteGame = async (gameId: number) => {
+    try {
+      if (!gameId) return;
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `https://m7-uf4-laravel-production.up.railway.app/api/games/${gameId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Error en la respuesta del servidor");
+      }
+      const data = await response.json();
+      toast.success(data.message || "Partida eliminada correctamente.");
+
+      fetchGames();
+    } catch (error) {
+      console.error("Error deleting game:", error);
+      toast.error("No se ha podido eliminar la partida.");
+    }
+  };
 
   console.log("users", users);
   console.log("partidas", partidas);
@@ -125,7 +207,11 @@ export default function Page() {
         </div>
 
         {/* Tabs principales */}
-        <Tabs defaultValue="usuarios" className="w-full">
+        <Tabs
+          value={selectedTab}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="usuarios" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
@@ -143,16 +229,12 @@ export default function Page() {
 
           {/* Gestión de Usuarios */}
           <TabsContent value="usuarios" className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex items-center gap-2 flex-1 max-w-sm">
-                <Search className="h-4 w-4" />
-                <Input placeholder="Buscar usuarios..." />
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-3">
+              <div className="flex items-center gap-2 flex-1 max-w-sm relative">
+                <Input placeholder="Buscar usuarios..." className="pl-8" />
+                <Search className="h-4 w-4 absolute left-2" />
               </div>
-              {/* <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Nuevo Usuario
-              </Button> */}
-              <UserDialog />
+              <UserDialog onConfirm={fetchUsers} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -186,11 +268,16 @@ export default function Page() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex gap-2">
-                      <UserDialog user={user} isEditing={true} />
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Trash2 className="h-3 w-3 mr-1" />
-                        Eliminar
-                      </Button>
+                      <UserDialog
+                        user={user}
+                        isEditing={true}
+                        onConfirm={fetchUsers}
+                      />
+                      <AlertConfirmationDelete
+                        id={user?.id}
+                        type="user"
+                        onConfirm={handleDeleteUser}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -200,15 +287,16 @@ export default function Page() {
 
           {/* Gestión de Partidas */}
           <TabsContent value="partidas" className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex items-center gap-2 flex-1 max-w-sm">
-                <Search className="h-4 w-4" />
-                <Input placeholder="Buscar partidas..." />
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-3">
+              <div className="flex items-center gap-2 flex-1 max-w-sm relative">
+                <Input placeholder="Buscar usuarios..." className="pl-8" />
+                <Search className="h-4 w-4 absolute left-2" />
               </div>
-              <Button className="flex items-center gap-2">
+              {/* <Button className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 Nueva Partida
-              </Button>
+              </Button> */}
+              {/* <GameDialog /> */}
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -271,12 +359,16 @@ export default function Page() {
                           <span className="font-medium">{game.user?.name}</span>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                          <GameDialog
+                            game={game}
+                            isEditing={true}
+                            onConfirm={fetchGames}
+                          />
+                          <AlertConfirmationDelete
+                            id={game?.id}
+                            type="adminGame"
+                            onConfirm={handleDeleteGame}
+                          />
                         </div>
                       </div>
                     </CardContent>
@@ -288,10 +380,10 @@ export default function Page() {
 
           {/* Gestión de Tarjetas */}
           <TabsContent value="tarjetas" className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex items-center gap-2 flex-1 max-w-sm">
-                <Search className="h-4 w-4" />
-                <Input placeholder="Buscar tarjetas..." />
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-3">
+              <div className="flex items-center gap-2 flex-1 max-w-sm relative">
+                <Input placeholder="Buscar usuarios..." className="pl-8" />
+                <Search className="h-4 w-4 absolute left-2" />
               </div>
               <Button className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />

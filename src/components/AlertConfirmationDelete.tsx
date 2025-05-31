@@ -10,6 +10,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
+import { Button } from "./ui/button";
 
 // Puedes tipar las props si usas TypeScript
 type Props = {
@@ -33,6 +34,24 @@ export default function AlertConfirmationDelete({
         action: "Eliminar partida",
       };
     }
+
+    if (type === "user") {
+      return {
+        title: "¿Estás seguro de eliminar este usuario?",
+        description:
+          "Esta acción no se puede deshacer. Se eliminará el usuario y todos sus datos asociados.",
+        action: "Eliminar usuario",
+      };
+    }
+
+    if (type === "adminGame") {
+      return {
+        title: "¿Estás seguro de eliminar esta partida?",
+        description:
+          "Esta acción no se puede deshacer. Se eliminará la partida y todos sus datos asociados.",
+        action: "Eliminar partida",
+      };
+    }
     // Otros tipos...
     return {
       title: "Are you absolutely sure?",
@@ -47,9 +66,16 @@ export default function AlertConfirmationDelete({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <span title="Eliminar">
-          <Trash2 className="text-red-600 cursor-pointer" size={20} />
-        </span>
+        {type === "user" || type === "adminGame" ? (
+          <Button variant="outline" size="sm" className="flex-1">
+            <Trash2 className="h-3 w-3 mr-1" />
+            Eliminar
+          </Button>
+        ) : (
+          <span title="Eliminar">
+            <Trash2 className="text-red-600 cursor-pointer" size={20} />
+          </span>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -58,7 +84,8 @@ export default function AlertConfirmationDelete({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction className="bg-red-700"
+          <AlertDialogAction
+            className="bg-red-700"
             onClick={async () => {
               await onConfirm(id);
             }}
