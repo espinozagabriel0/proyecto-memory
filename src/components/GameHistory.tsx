@@ -202,7 +202,7 @@ export default function GameHistory() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center">
-                    No hay resultados.
+                    No hay partidas registradas.
                   </TableCell>
                 </TableRow>
               )}
