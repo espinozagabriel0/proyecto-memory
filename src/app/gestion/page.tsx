@@ -8,27 +8,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import {
-  Users,
-  GamepadIcon,
-  CreditCard,
-  Plus,
-  Edit,
-  Trash2,
-  Search,
-  Star,
-} from "lucide-react";
+// import { Input } from "@/components/ui/input";
+import { Users, GamepadIcon, CreditCard, Star } from "lucide-react";
 import { SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { differenceInDays, parseISO } from "date-fns";
+import { differenceInDays, format, parseISO } from "date-fns";
 import UserDialog from "@/components/dialogs/UserDialog";
 import AlertConfirmationDelete from "@/components/AlertConfirmationDelete";
 import toast from "react-hot-toast";
 import GameDialog from "@/components/dialogs/GameDialog";
+import Image from "next/image";
+import CardDialog from "@/components/dialogs/CardDialog";
 
 type User = {
   id: number;
@@ -50,12 +42,25 @@ type GameData = {
   user?: User;
 };
 
+type Card = {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  url: string;
+  category_id: number | null;
+  user_id: number | null;
+  user: unknown | null;
+  category: unknown | null;
+};
+
 export default function Page() {
   const [users, setUsers] = useState<User[]>([]);
   const [partidas, setPartidas] = useState<GameData[]>([]);
+  const [cards, setCards] = useState<Card[]>([]);
   const [selectedTab, setSelectedTab] = useState("usuarios");
   const [gamesLoaded, setGamesLoaded] = useState(false);
-  // const [tarjetasLoaded, setTarjetasLoaded] = useState(false);
+  const [tarjetasLoaded, setTarjetasLoaded] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -110,7 +115,36 @@ export default function Page() {
       }
       if (!res.ok) throw new Error("Error en la respuesta del servidor");
       const gamesData = await res.json();
+
       setPartidas(gamesData || []);
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchCards = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        "https://m7-uf4-laravel-production.up.railway.app/api/cards",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (res.status === 403) {
+        router.push("/");
+        return;
+      }
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
+      const cardsData = await res.json();
+      setCards(cardsData || []);
     } catch (error) {
       console.error("Error fetching games:", error);
     } finally {
@@ -124,8 +158,13 @@ export default function Page() {
     if (value === "partidas" && !gamesLoaded) {
       fetchGames();
       setGamesLoaded(true);
+    } else if (value === "tarjetas" && !tarjetasLoaded) {
+      fetchCards();
+      setTarjetasLoaded(true);
     }
   };
+
+  console.log("cards: ", cards);
 
   useEffect(() => {
     fetchUsers();
@@ -185,13 +224,44 @@ export default function Page() {
       toast.error("No se ha podido eliminar la partida.");
     }
   };
+  const handleDeleteCard = async (cardId: number) => {
+    try {
+      if (!cardId) return;
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `https://m7-uf4-laravel-production.up.railway.app/api/cards/${cardId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Error en la respuesta del servidor");
+      }
+      const data = await response.json();
+      toast.success(data.message || "Carta eliminada correctamente.");
 
-  console.log("users", users);
-  console.log("partidas", partidas);
+      fetchCards();
+    } catch (error) {
+      console.error("Error deleting card:", error);
+      toast.error("No se ha podido eliminar la carta.");
+    }
+  };
+
+  // console.log("users", users);
+  // console.log("partidas", partidas);
 
   if (isLoading) {
-    return "cargando...";
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-8 h-8 border-4 border-blue-400 border-dashed rounded-full animate-spin"></div>
+      </div>
+    );
   }
+
   return (
     <>
       <Header />
@@ -231,8 +301,8 @@ export default function Page() {
           <TabsContent value="usuarios" className="space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-3">
               <div className="flex items-center gap-2 flex-1 max-w-sm relative">
-                <Input placeholder="Buscar usuarios..." className="pl-8" />
-                <Search className="h-4 w-4 absolute left-2" />
+                {/* <Input placeholder="Buscar usuarios..." className="pl-8" />
+                <Search className="h-4 w-4 absolute left-2" /> */}
               </div>
               <UserDialog onConfirm={fetchUsers} />
             </div>
@@ -289,8 +359,8 @@ export default function Page() {
           <TabsContent value="partidas" className="space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-3">
               <div className="flex items-center gap-2 flex-1 max-w-sm relative">
-                <Input placeholder="Buscar usuarios..." className="pl-8" />
-                <Search className="h-4 w-4 absolute left-2" />
+                {/* <Input placeholder="Buscar usuarios..." className="pl-8" />
+                <Search className="h-4 w-4 absolute left-2" /> */}
               </div>
               {/* <Button className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
@@ -382,55 +452,59 @@ export default function Page() {
           <TabsContent value="tarjetas" className="space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-3">
               <div className="flex items-center gap-2 flex-1 max-w-sm relative">
-                <Input placeholder="Buscar usuarios..." className="pl-8" />
-                <Search className="h-4 w-4 absolute left-2" />
+                {/* <Input placeholder="Buscar usuarios..." className="pl-8" />
+                <Search className="h-4 w-4 absolute left-2" /> */}
               </div>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Nueva Tarjeta
-              </Button>
+              <CardDialog onConfirm={fetchCards} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((card) => (
-                <Card key={card} className="hover:shadow-md transition-shadow">
+              {cards.map((card) => (
+                <Card
+                  key={card?.id}
+                  className="hover:shadow-md transition-shadow"
+                >
                   <CardHeader className="pb-2">
-                    <div className="aspect-square bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mb-2">
-                      <CreditCard className="h-8 w-8 text-white" />
+                    <div className="aspect-square border flex items-center justify-center rounded-md mb-3">
+                      <Image
+                        src={card?.url}
+                        alt={card?.name}
+                        width={64}
+                        height={64}
+                        className="size-30 object-contain"
+                      />
                     </div>
-                    <CardTitle className="text-sm">Tarjeta {card}</CardTitle>
-                    <CardDescription>
-                      Tipo: {card % 2 === 0 ? "Ataque" : "Defensa"}
-                    </CardDescription>
+                    <CardTitle className="text-sm">{card?.name}</CardTitle>
+                    <CardDescription>ID: #{card?.id}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Poder:</span>
+                        <span className="text-muted-foreground">Creado:</span>
                         <span className="font-medium">
-                          {Math.floor(Math.random() * 100) + 50}
+                          {format(card?.created_at, "dd/MM/yyyy HH:mm")}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Rareza:</span>
-                        <Badge
-                          variant={card % 3 === 0 ? "default" : "secondary"}
-                          className="text-xs"
-                        >
-                          {card % 3 === 0
-                            ? "Épica"
-                            : card % 3 === 1
-                            ? "Rara"
-                            : "Común"}
-                        </Badge>
+                        <span className="text-muted-foreground">
+                          Actualizado:
+                        </span>
+                        <span className="font-medium">
+                          {format(card?.updated_at, "dd/MM/yyyy HH:mm")}
+                        </span>
                       </div>
+                      {/* Puedes mostrar más campos si lo deseas */}
                       <div className="flex gap-1 pt-2">
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        <CardDialog
+                          card={card}
+                          isEditing={true}
+                          onConfirm={fetchCards}
+                        />
+                        <AlertConfirmationDelete
+                          id={card?.id}
+                          type="adminCard"
+                          onConfirm={handleDeleteCard}
+                        />
                       </div>
                     </div>
                   </CardContent>

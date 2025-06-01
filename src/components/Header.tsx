@@ -29,25 +29,25 @@ export default function Header() {
 
   return (
     <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6">
-      <Link href="#" className="flex items-center gap-2" prefetch={false}>
+      <Link href="/game" className="flex items-center gap-2" prefetch={false}>
         <span className="text-lg font-medium">PokeMemory</span>
       </Link>
       <nav className="hidden items-center gap-6 lg:flex">
         <Link
-          href="/"
+          href="/game"
           className={cn(
             "text-sm font-medium transition-colors hover:text-primary text-slate-300",
-            pathname === "/" && "text-primary dark:text-green-400"
+            pathname === "/game" && "text-primary dark:text-green-400"
           )}
           prefetch={false}
         >
           Juego
         </Link>
         <Link
-          href="/about"
+          href="/"
           className={cn(
             "text-sm font-medium transition-colors hover:text-primary text-slate-300",
-            pathname === "/about" && "text-primary dark:text-green-400",
+            pathname === "/" && "text-primary dark:text-green-400",
             started && "pointer-events-none opacity-50"
           )}
           aria-disabled={started}
@@ -115,8 +115,7 @@ export default function Header() {
                 </div>
               </div>
             </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               disabled={!isAuthenticated}
               className="cursor-pointer"
             >
@@ -128,20 +127,7 @@ export default function Header() {
                 <div className="h-4 w-4" />
                 <span>Perfil</span>
               </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              disabled={!isAuthenticated}
-              className="cursor-pointer"
-            >
-              <Link
-                href="#"
-                className="flex items-center gap-2"
-                prefetch={false}
-              >
-                <div className="h-4 w-4" />
-                <span>Configuración</span>
-              </Link>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuSeparator />
             {isAuthenticated && (
               <DropdownMenuItem asChild className="cursor-pointer">

@@ -52,6 +52,15 @@ export default function AlertConfirmationDelete({
         action: "Eliminar partida",
       };
     }
+
+    if (type === "adminCard") {
+      return {
+        title: "¿Estás seguro de eliminar esta carta?",
+        description:
+          "Esta acción no se puede deshacer. Se eliminará la carta de forma permanente.",
+        action: "Eliminar carta",
+      };
+    }
     // Otros tipos...
     return {
       title: "Are you absolutely sure?",
@@ -66,7 +75,7 @@ export default function AlertConfirmationDelete({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        {type === "user" || type === "adminGame" ? (
+        {type === "user" || type === "adminGame" || type === "adminCard" ? (
           <Button variant="outline" size="sm" className="flex-1">
             <Trash2 className="h-3 w-3 mr-1" />
             Eliminar
