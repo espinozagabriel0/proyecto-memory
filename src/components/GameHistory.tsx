@@ -24,6 +24,9 @@ type GameData = {
   points: number;
   duration: number;
 };
+
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 export default function GameHistory() {
   const [isLoading, setIsLoading] = useState(false);
   const [gameHistoryData, setGameHistoryData] = useState<GameData[]>([]);
@@ -33,16 +36,13 @@ export default function GameHistory() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/games",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${apiLink}/api/games`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Error en la respuesta del servidor");
       }
@@ -64,16 +64,13 @@ export default function GameHistory() {
     try {
       if (!gameId) return;
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `https://m7-uf4-laravel-production.up.railway.app/api/games/${gameId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${apiLink}/api/games/${gameId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Error en la respuesta del servidor");
       }

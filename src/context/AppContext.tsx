@@ -85,6 +85,8 @@ type UserDataRetrieved = {
   role?: string;
 };
 
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 const AppContext = createContext<AppContextProps>(defaultValues);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
@@ -102,9 +104,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const [currentGameId, setCurrentGameId] = useState<number | null>(null);
 
-  useEffect(() => {
-    console.log("Global Points:", globalPoints);
-  }, [globalPoints]);
+  // useEffect(() => {
+  //   console.log("Global Points:", globalPoints);
+  // }, [globalPoints]);
 
   // auth con api
   const getProfile = async () => {
@@ -115,16 +117,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     try {
-      const response = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/me",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${apiLink}/api/me`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Error fetching profile");
@@ -145,16 +144,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/logout",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${apiLink}/api/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Error logging out.");

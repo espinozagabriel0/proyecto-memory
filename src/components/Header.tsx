@@ -28,7 +28,7 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-6">
+    <header className="flex h-16 w-full items-center justify-between bg-background px-4 md:px-0 border-b">
       <Link href="/game" className="flex items-center gap-2" prefetch={false}>
         <span className="text-lg font-medium">PokeMemory</span>
       </Link>
@@ -146,7 +146,7 @@ export default function Header() {
         <Button
           variant="outline"
           onClick={() => router.push("/login")}
-          disabled={started}
+          disabled={started || isAuthenticated}
         >
           Login
         </Button>

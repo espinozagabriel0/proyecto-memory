@@ -36,6 +36,8 @@ const formSchema = z.object({
   password: z.string().min(5, { message: "Mínimo 5 caracteres" }),
 });
 
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 export default function LoginPage() {
   const { setIsAuthenticated, getProfile } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
@@ -53,20 +55,17 @@ export default function LoginPage() {
     const { email, password } = values;
 
     try {
-      const response = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch(`${apiLink}/api/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
       const data = await response.json();
 
       if (!response.ok) {
-        let message = data.message || "Error al iniciar sesión";
+        let message = `Error al iniciar sesión: ${data.message}`;
 
         if (message === "Invalid Credentials") {
           message = "Credenciales incorrectas.";

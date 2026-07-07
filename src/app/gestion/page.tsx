@@ -54,6 +54,8 @@ type Card = {
   category: unknown | null;
 };
 
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 export default function Page() {
   const [users, setUsers] = useState<User[]>([]);
   const [partidas, setPartidas] = useState<GameData[]>([]);
@@ -71,16 +73,13 @@ export default function Page() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/users",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${apiLink}/api/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.status === 403) {
         router.push("/");
         return;
@@ -99,16 +98,13 @@ export default function Page() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/gamesAll",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${apiLink}/api/gamesAll`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.status === 403) {
         router.push("/");
         return;
@@ -128,16 +124,13 @@ export default function Page() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/cards",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${apiLink}/api/cards`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.status === 403) {
         router.push("/");
         return;
@@ -164,7 +157,7 @@ export default function Page() {
     }
   };
 
-  console.log("cards: ", cards);
+  // console.log("cards: ", cards);
 
   useEffect(() => {
     fetchUsers();
@@ -174,16 +167,13 @@ export default function Page() {
     try {
       if (!userId) return;
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `https://m7-uf4-laravel-production.up.railway.app/api/users/${userId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${apiLink}/api/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Error en la respuesta del servidor");
       }
@@ -202,16 +192,13 @@ export default function Page() {
     try {
       if (!gameId) return;
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `https://m7-uf4-laravel-production.up.railway.app/api/games/${gameId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${apiLink}/api/games/${gameId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Error en la respuesta del servidor");
       }
@@ -228,16 +215,13 @@ export default function Page() {
     try {
       if (!cardId) return;
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `https://m7-uf4-laravel-production.up.railway.app/api/cards/${cardId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${apiLink}/api/cards/${cardId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Error en la respuesta del servidor");
       }
@@ -373,7 +357,7 @@ export default function Page() {
               {partidas.map((game) => {
                 const dias = differenceInDays(
                   new Date(),
-                  parseISO(game.created_at)
+                  parseISO(game.created_at),
                 );
                 return (
                   <Card

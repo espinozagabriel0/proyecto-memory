@@ -38,6 +38,8 @@ type RankingUser = {
   };
 };
 
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 export default function RankingHistory() {
   const [rankingData, setRankingData] = useState<RankingUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,16 +49,13 @@ export default function RankingHistory() {
       try {
         setIsLoading(true);
         const token = localStorage.getItem("token");
-        const response = await fetch(
-          "https://m7-uf4-laravel-production.up.railway.app/api/ranking",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`${apiLink}/api/ranking`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("Error en la respuesta del servidor");
         }
@@ -133,7 +132,7 @@ export default function RankingHistory() {
                   rankColors[index],
                   index === 1 || index === 3 || index === 4
                     ? "text-slate-500"
-                    : "text-white"
+                    : "text-white",
                 )}
               >
                 {index + 1}
@@ -142,7 +141,7 @@ export default function RankingHistory() {
                 className={cn(
                   "overflow-hidden border-2 rounded-lg transition-all hover:shadow-md ",
                   (index === 2 || index === 4 || index === 5) &&
-                    "text-slate-900"
+                    "text-slate-900",
                 )}
               >
                 <div className={cn("h-2", rankColors[index])} />

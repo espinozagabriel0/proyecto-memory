@@ -47,6 +47,8 @@ const userSchema = z
     message: "Las contraseñas no coinciden",
   });
 
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 export default function UserDialog({
   user = null,
   isEditing = false,
@@ -79,16 +81,13 @@ export default function UserDialog({
 
   const handleRegister = async (values: unknown) => {
     try {
-      const response = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const response = await fetch(`${apiLink}/api/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
       const data = await response.json();
 
       if (!response.ok) {
@@ -108,17 +107,14 @@ export default function UserDialog({
       if (!userId) return;
 
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `https://m7-uf4-laravel-production.up.railway.app/api/users/${userId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const response = await fetch(`${apiLink}/api/users/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
       const data = await response.json();
 
       console.log(response, data);

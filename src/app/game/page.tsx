@@ -23,6 +23,8 @@ type Card = {
   url: string;
 };
 
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 export default function Home() {
   const {
     started,
@@ -53,9 +55,7 @@ export default function Home() {
   const fetchCards = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/public-cards?limit=6"
-      );
+      const response = await fetch(`${apiLink}/api/public-cards?limit=6`);
       if (!response.ok) {
         throw new Error("Error fetching cards");
       }
@@ -81,18 +81,15 @@ export default function Home() {
   const handleBeginGame = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/games",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${apiLink}/api/games`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      console.log(response);
+      // console.log(response);
 
       if (!response.ok) {
         throw new Error("No se pudo crear la partida");
@@ -111,7 +108,7 @@ export default function Home() {
   const handleUpdateGame = async (
     totalClicks: number,
     totalPoints: number,
-    totalDuration: number
+    totalDuration: number,
   ) => {
     try {
       const token = localStorage.getItem("token");
@@ -121,7 +118,7 @@ export default function Home() {
       }
 
       const response = await fetch(
-        `https://m7-uf4-laravel-production.up.railway.app/api/games/${currentGameId}/finish`,
+        `${apiLink}/api/games/${currentGameId}/finish`,
         {
           method: "PUT",
           headers: {
@@ -133,14 +130,14 @@ export default function Home() {
             points: totalPoints,
             duration: totalDuration,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         throw new Error("No se pudo crear la partida");
       }
-      const data = await response.json();
-      console.log("Datos partida finalizada y guardada: ", data);
+      // const data = await response.json();
+      // console.log("Datos partida finalizada y guardada: ", data);
     } catch (error) {
       console.error(error);
     }
@@ -190,7 +187,7 @@ export default function Home() {
         handleUpdateGame(
           globalClicks,
           globalPoints,
-          Math.abs(globalTimer - 20)
+          Math.abs(globalTimer - 20),
         );
       }
     }
@@ -199,31 +196,33 @@ export default function Home() {
   return (
     <>
       <Header />
-      <div className="dark:bg-gray-700 text-center mt-3 mb-7 grid grid-cols-1 lg:grid-cols-4 items-center shadow-md border rounded-md p-4 bg-white">
+      <div className="text-center mt-3 mb-7 grid grid-cols-1 lg:grid-cols-4 items-center gap-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-4 shadow-md dark:shadow-black/40">
         <div>
-          <h3 className="text-2xl flex items-center justify-center gap-2">
-            <Clock className="w-6 h-6 text-blue-500" />
+          <h3 className="text-2xl flex items-center justify-center gap-2 text-slate-700 dark:text-slate-200">
+            <Clock className="w-6 h-6 text-sky-500 dark:text-sky-400" />
             Tiempo: <span className="font-semibold">{globalTimer}s</span>
           </h3>
         </div>
         <div>
-          <h3 className="text-2xl flex items-center justify-center gap-2">
-            <MousePointerClick className="w-6 h-6 text-green-500" />
+          <h3 className="text-2xl flex items-center justify-center gap-2 text-slate-700 dark:text-slate-200">
+            <MousePointerClick className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
             Clicks: <span className="font-semibold">{globalClicks}</span>
           </h3>
         </div>
         <div>
-          <h3 className="text-2xl flex items-center justify-center gap-2">
-            <Star className="w-6 h-6 text-yellow-500" />
+          <h3 className="text-2xl flex items-center justify-center gap-2 text-slate-700 dark:text-slate-200">
+            <Star className="w-6 h-6 text-amber-500 dark:text-amber-400" />
             Puntos: <span className="font-semibold">{globalPoints}</span>
           </h3>
         </div>
         <div>
-          <h1 className="text-center text-3xl font-semibold my-3">Memory</h1>
+          <h1 className="text-center text-3xl font-semibold my-3 text-slate-900 dark:text-white">
+            Memory
+          </h1>
           {!started && (
             <Button
               onClick={handleTimer}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white shadow-sm"
             >
               Jugar
             </Button>

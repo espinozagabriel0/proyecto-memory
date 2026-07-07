@@ -49,6 +49,8 @@ const gameSchema = z.object({
     .max(20, "Debe ser un número entre 0 y 20"),
 });
 
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 export default function GameDialog({
   game = null,
   isEditing = false,
@@ -78,7 +80,7 @@ export default function GameDialog({
   //   const handleCreateGame = async (values: unknown) => {
   //     try {
   //       const response = await fetch(
-  //         "https://m7-uf4-laravel-production.up.railway.app/api/games",
+  //         `${apiLink}/api/games`,
   //         {
   //           method: "POST",
   //           headers: {
@@ -108,17 +110,14 @@ export default function GameDialog({
       const gameId = game?.id;
       if (!gameId || !token) return;
 
-      const response = await fetch(
-        `https://m7-uf4-laravel-production.up.railway.app/api/games/${gameId}/finish`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const response = await fetch(`${apiLink}/api/games/${gameId}/finish`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
 
       if (!response.ok) {
         toast.error("No se ha podido actualizar la partida.");

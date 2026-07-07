@@ -46,6 +46,8 @@ const cardSchema = z.object({
   category_id: z.union([z.number(), z.null()]).optional(),
 });
 
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 export default function CardDialog({
   card = null,
   isEditing = false,
@@ -77,17 +79,14 @@ export default function CardDialog({
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/cards",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const response = await fetch(`${apiLink}/api/cards`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
       console.log(response);
       const data = await response.json();
 
@@ -111,17 +110,14 @@ export default function CardDialog({
 
       if (!cardId || !token) return;
 
-      const response = await fetch(
-        `https://m7-uf4-laravel-production.up.railway.app/api/cards/${cardId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const response = await fetch(`${apiLink}/api/cards/${cardId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
 
       if (!response.ok) {
         toast.error("No se ha podido actualizar la carta.");

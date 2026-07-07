@@ -44,6 +44,8 @@ const formSchema = z
     path: ["password_confirmation"],
   });
 
+const apiLink = process.env.API_LINK || "https://apimemory-ryty.onrender.com";
+
 export default function RegisterPage() {
   // const { setUsers } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
@@ -62,16 +64,13 @@ export default function RegisterPage() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(
-        "https://m7-uf4-laravel-production.up.railway.app/api/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const response = await fetch(`${apiLink}/api/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
       const data = await response.json();
 
       if (!response.ok) {
