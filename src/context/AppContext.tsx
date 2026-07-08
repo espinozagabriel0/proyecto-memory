@@ -155,8 +155,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       if (!response.ok) {
         throw new Error("Error logging out.");
       }
-      const data = await response.json();
-      console.log(data);
+      // const data = await response.json();
+      // console.log(data);
 
       localStorage.removeItem("token");
       setIsAuthenticated(false);

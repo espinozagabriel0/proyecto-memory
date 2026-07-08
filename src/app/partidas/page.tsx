@@ -15,7 +15,7 @@ export default function Page() {
         <h1 className="text-center text-3xl font-semibold">Partidas</h1>
       </div> */}
       {!isAuthenticated ? (
-        <p className="text-center my-5">
+        <p className="text-center my-5 text-gray-700 dark:text-zinc-300">
           {!isAuthenticated &&
             "Para poder ver tus partidas y un ranking de otros jugadores, primero debes autenticarte."}
         </p>

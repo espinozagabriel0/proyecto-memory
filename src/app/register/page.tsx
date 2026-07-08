@@ -71,7 +71,7 @@ export default function RegisterPage() {
         },
         body: JSON.stringify(values),
       });
-      const data = await response.json();
+      // const data = await response.json();
 
       if (!response.ok) {
         toast.error("No se ha podido registrar el usuario.");
@@ -80,7 +80,7 @@ export default function RegisterPage() {
 
       toast.success("Usuario registrado correctamente.");
       form.reset();
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.error(error);
     }

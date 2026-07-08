@@ -123,12 +123,12 @@ export default function GameDialog({
         toast.error("No se ha podido actualizar la partida.");
         return;
       }
-      const data = await response.json();
+      // const data = await response.Fjson();
 
       toast.success("Partida actualizada correctamente.");
 
       form.reset();
-      console.log("Partida actualizada: ", data);
+      // console.log("Partida actualizada: ", data);
     } catch (error) {
       console.error(error);
       toast.error("No se ha podido actualizar la partida.");
@@ -137,7 +137,7 @@ export default function GameDialog({
 
   const onSubmit = async (values: unknown) => {
     try {
-      console.log(values);
+      // console.log(values);
       //   if (isEditing && game?.id) {
       //     await handleUpdateGame(values, game.id);
       //   } else {

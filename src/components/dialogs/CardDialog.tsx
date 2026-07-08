@@ -87,8 +87,8 @@ export default function CardDialog({
         },
         body: JSON.stringify(values),
       });
-      console.log(response);
-      const data = await response.json();
+      // console.log(response);
+      // const data = await response.json();
 
       if (!response.ok) {
         toast.error("No se ha podido crear la carta.");
@@ -97,7 +97,7 @@ export default function CardDialog({
 
       toast.success("Carta creada correctamente.");
       form.reset();
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.error(error);
     }
@@ -123,13 +123,13 @@ export default function CardDialog({
         toast.error("No se ha podido actualizar la carta.");
         return;
       }
-      const data = await response.json();
-      console.log(response, data);
+      // const data = await response.json();
+      // console.log(response, data);
 
       toast.success("Carta actualizada correctamente.");
 
       form.reset();
-      console.log("Carta actualizada: ", data);
+      // console.log("Carta actualizada: ", data);
     } catch (error) {
       console.error(error);
       toast.error("No se ha podido actualizar la carta.");

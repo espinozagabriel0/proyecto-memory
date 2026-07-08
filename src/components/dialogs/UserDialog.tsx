@@ -88,7 +88,7 @@ export default function UserDialog({
         },
         body: JSON.stringify(values),
       });
-      const data = await response.json();
+      // const data = await response.json();
 
       if (!response.ok) {
         toast.error("No se ha podido crear el usuario.");
@@ -97,7 +97,7 @@ export default function UserDialog({
 
       toast.success("Usuario creado correctamente.");
       form.reset();
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.error(error);
     }
@@ -115,9 +115,9 @@ export default function UserDialog({
         },
         body: JSON.stringify(values),
       });
-      const data = await response.json();
+      // const data = await response.json();
 
-      console.log(response, data);
+      // console.log(response, data);
 
       if (!response.ok) {
         toast.error("No se ha podido actualizar el usuario.");
@@ -126,14 +126,14 @@ export default function UserDialog({
 
       toast.success("Usuario actualizado correctamente.");
       form.reset();
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.error(error);
     }
   };
 
   const onSubmit = async (values: unknown) => {
-    console.log(values);
+    // console.log(values);
 
     try {
       if (isEditing && user?.id) {
